@@ -1,2 +1,5 @@
 # Ignore binary files
 market-rest-api
+
+# Ignore environment variables
+.env
