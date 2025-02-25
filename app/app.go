@@ -45,37 +45,17 @@ func initHandlers(db *gorm.DB) (*handlers.ItemHandler, *handlers.UserHandler) {
 func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHandler) *gin.Engine {
 	router := gin.Default()
 
-	router.POST("/item/create", func(c *gin.Context) {
-		itemHandler.CreateItem(c.Writer, c.Request)
-	})
-	router.GET("/item", func(c *gin.Context) {
-		itemHandler.GetItemByID(c.Writer, c.Request)
-	})
-	router.GET("/items", func(c *gin.Context) {
-		itemHandler.GetAllItems(c.Writer, c.Request)
-	})
-	router.PUT("/item/update", func(c *gin.Context) {
-		itemHandler.UpdateItem(c.Writer, c.Request)
-	})
-	router.DELETE("/item/delete", func(c *gin.Context) {
-		itemHandler.DeleteItem(c.Writer, c.Request)
-	})
+	router.POST("/item/create", itemHandler.CreateItem)
+	router.GET("/item", itemHandler.GetItemByID)
+	router.GET("/items", itemHandler.GetAllItems)
+	router.PUT("/item/update", itemHandler.UpdateItem)
+	router.DELETE("/item/delete", itemHandler.DeleteItem)
 
-	router.POST("/user/create", func(c *gin.Context) {
-		userHandler.CreateUser(c.Writer, c.Request)
-	})
-	router.GET("/user", func(c *gin.Context) {
-		userHandler.GetUserByID(c.Writer, c.Request)
-	})
-	router.GET("/users", func(c *gin.Context) {
-		userHandler.GetAllUsers(c.Writer, c.Request)
-	})
-	router.PUT("/user/update", func(c *gin.Context) {
-		userHandler.UpdateUser(c.Writer, c.Request)
-	})
-	router.DELETE("/user/delete", func(c *gin.Context) {
-		userHandler.DeleteUser(c.Writer, c.Request)
-	})
+	router.POST("/user/create", userHandler.CreateUser)
+	router.GET("/user", userHandler.GetUserByID)
+	router.GET("/users", userHandler.GetAllUsers)
+	router.PUT("/user/update", userHandler.UpdateUser)
+	router.DELETE("/user/delete", userHandler.DeleteUser)
 
 	return router
 }
