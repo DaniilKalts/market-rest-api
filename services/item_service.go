@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/DaniilKalts/market-rest-api/models"
 	"github.com/DaniilKalts/market-rest-api/repositories"
 )
@@ -34,6 +36,15 @@ func (s *itemService) GetAllItems() ([]models.Item, error) {
 }
 
 func (s *itemService) UpdateItem(item *models.Item) error {
+	existingItem, err := s.repo.GetByID(item.ID)
+
+	if err != nil {
+		return err
+	}
+	if existingItem == nil {
+		return errors.New("Item not found")
+	}
+
 	return s.repo.Update(item)
 }
 

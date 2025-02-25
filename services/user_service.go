@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/DaniilKalts/market-rest-api/models"
 	"github.com/DaniilKalts/market-rest-api/repositories"
 )
@@ -34,6 +36,15 @@ func (s *userService) GetAllUsers() ([]models.User, error) {
 }
 
 func (s *userService) UpdateUser(user *models.User) error {
+	existingUser, err := s.repo.GetByID(user.ID)
+
+	if err != nil {
+		return err
+	}
+	if existingUser == nil {
+		return errors.New("User not found")
+	}
+
 	return s.repo.Update(user)
 }
 

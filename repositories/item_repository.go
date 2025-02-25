@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"errors"
+
 	"gorm.io/gorm"
 
 	"github.com/DaniilKalts/market-rest-api/models"
@@ -53,5 +55,14 @@ func (r *itemRepository) Update(item *models.Item) error {
 }
 
 func (r *itemRepository) Delete(id int) error {
-	return r.db.Delete(&models.Item{}, id).Error
+	result := r.db.Delete(&models.Item{}, id)
+
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("Item not found")
+	}
+
+	return nil
 }
