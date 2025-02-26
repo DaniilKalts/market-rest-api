@@ -7,6 +7,9 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
 	"github.com/DaniilKalts/market-rest-api/handlers"
 	"github.com/DaniilKalts/market-rest-api/logger"
 	"github.com/DaniilKalts/market-rest-api/models"
@@ -56,6 +59,8 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 	router.GET("/users", userHandler.GetAllUsers)
 	router.PUT("/user/update", userHandler.UpdateUser)
 	router.DELETE("/user/delete", userHandler.DeleteUser)
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return router
 }
