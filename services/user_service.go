@@ -3,6 +3,8 @@ package services
 import (
 	"errors"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/DaniilKalts/market-rest-api/models"
 	"github.com/DaniilKalts/market-rest-api/repositories"
 )
@@ -24,6 +26,12 @@ func NewUserService(repo repositories.UserRepository) UserService {
 }
 
 func (s *userService) CreateUser(user *models.User) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
+	if err != nil {
+		return errors.New("Failed to hash password")
+	}
+	user.PasswordHash = string(hashedPassword)
+
 	return s.repo.Create(user)
 }
 
@@ -43,6 +51,16 @@ func (s *userService) UpdateUser(user *models.User) error {
 	}
 	if existingUser == nil {
 		return errors.New("User not found")
+	}
+
+	if user.PasswordHash != "" && user.PasswordHash != existingUser.PasswordHash {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
+		if err != nil {
+			return errors.New("Failed to hash password")
+		}
+		user.PasswordHash = string(hashedPassword)
+	} else {
+		user.PasswordHash = existingUser.PasswordHash
 	}
 
 	return s.repo.Update(user)
