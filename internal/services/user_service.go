@@ -5,8 +5,8 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/DaniilKalts/market-rest-api/models"
-	"github.com/DaniilKalts/market-rest-api/repositories"
+	"github.com/DaniilKalts/market-rest-api/internal/models"
+	"github.com/DaniilKalts/market-rest-api/internal/repositories"
 )
 
 type UserService interface {

@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/DaniilKalts/market-rest-api/logger"
-	"github.com/DaniilKalts/market-rest-api/models"
-	"github.com/DaniilKalts/market-rest-api/services"
+	"github.com/DaniilKalts/market-rest-api/internal/logger"
+	"github.com/DaniilKalts/market-rest-api/internal/models"
+	"github.com/DaniilKalts/market-rest-api/internal/services"
 )
 
 type ItemHandler struct {

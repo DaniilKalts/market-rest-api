@@ -10,11 +10,11 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	"github.com/DaniilKalts/market-rest-api/handlers"
-	"github.com/DaniilKalts/market-rest-api/logger"
-	"github.com/DaniilKalts/market-rest-api/models"
-	"github.com/DaniilKalts/market-rest-api/repositories"
-	"github.com/DaniilKalts/market-rest-api/services"
+	"github.com/DaniilKalts/market-rest-api/internal/handlers"
+	"github.com/DaniilKalts/market-rest-api/internal/logger"
+	"github.com/DaniilKalts/market-rest-api/internal/models"
+	"github.com/DaniilKalts/market-rest-api/internal/repositories"
+	"github.com/DaniilKalts/market-rest-api/internal/services"
 )
 
 func initDB() *gorm.DB {

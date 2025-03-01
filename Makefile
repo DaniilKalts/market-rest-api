@@ -6,7 +6,7 @@ create-db:
 	psql -U postgres -c "CREATE DATABASE market"
 
 build: create-db
-	go build -o market-rest-api
+	go build -o market-rest-api ./cmd/market-rest-api
 
 run: build
 	./market-rest-api

@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/DaniilKalts/market-rest-api/models"
+	"github.com/DaniilKalts/market-rest-api/internal/models"
 )
 
 type UserRepository interface {

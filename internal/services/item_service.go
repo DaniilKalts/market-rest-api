@@ -3,8 +3,8 @@ package services
 import (
 	"errors"
 
-	"github.com/DaniilKalts/market-rest-api/models"
-	"github.com/DaniilKalts/market-rest-api/repositories"
+	"github.com/DaniilKalts/market-rest-api/internal/models"
+	"github.com/DaniilKalts/market-rest-api/internal/repositories"
 )
 
 type ItemService interface {
