@@ -19,16 +19,6 @@ func NewUserHandler(service services.UserService) *UserHandler {
 	return &UserHandler{service: service}
 }
 
-// @Summary Create a new user
-// @Description Create a new user with the given payload
-// @Tags Users
-// @Accept json
-// @Produce json
-// @Param user body models.RequestCreateUser true "User to create"
-// @Success 201 {object} models.RequestCreateUser "User created"
-// @Failure 400 {object} models.BadRequestError "Bad Request"
-// @Failure 500 {object} models.InternalServerError "Internal Server Error"
-// @Router /user/create [post]
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var user models.User
 
@@ -48,16 +38,6 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, user)
 }
 
-// @Summary Get user by id
-// @Description Get a user with the specified ID
-// @Tags Users
-// @Accept json
-// @Produce json
-// @Param id query int true "User ID"
-// @Success 200 {object} models.User "User retrieved successfully"
-// @Failure 400 {object} models.BadRequestError "Bad Request"
-// @Failure 500 {object} models.InternalServerError "Internal Server Error"
-// @Router /user [get]
 func (h *UserHandler) GetUserByID(c *gin.Context) {
 	idStr := c.Query("id")
 
@@ -79,14 +59,6 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// @Summary Get all users
-// @Description Retrieve a list of all users
-// @Tags Users
-// @Produce json
-// @Success 200 {array} models.User "A list of users retrieved successfully"
-// @Failure 400 {object} models.BadRequestError "Bad Request"
-// @Failure 500 {object} models.InternalServerError "Internal Server Error"
-// @Router /users [get]
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
 	users, err := h.service.GetAllUsers()
 	if err != nil {
@@ -99,16 +71,6 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-// @Summary Update user
-// @Description Update an existing user with the given payload
-// @Tags Users
-// @Accept json
-// @Produce json
-// @Param user body models.RequestUpdateUser true "User to update"
-// @Success 200 {object} models.User "User udpated successfully"
-// @Failure 400 {object} models.BadRequestError "Bad Request"
-// @Failure 500 {object} models.InternalServerError "Internal Server Error"
-// @Router /user/update [put]
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	var user models.User
 
@@ -127,16 +89,6 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// @Summary Delete user
-// @Description Delete a user with the specified ID
-// @Tags Users
-// @Accept json
-// @Produce json
-// @Param id query int true "User ID"
-// @Success 200 {object} models.User "User deleted successfully"
-// @Failure 400 {object} models.BadRequestError "Bad Request"
-// @Failure 500 {object} models.InternalServerError "Internal Server Error"
-// @Router /user/delete [delete]
 func (h *UserHandler) DeleteUser(c *gin.Context) {
 	idStr := c.Query("id")
 

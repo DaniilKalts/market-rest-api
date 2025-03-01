@@ -60,7 +60,10 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 	router.PUT("/user/update", userHandler.UpdateUser)
 	router.DELETE("/user/delete", userHandler.DeleteUser)
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.Static("/docs", "./docs")
+	router.GET("/swagger/*any", ginSwagger.CustomWrapHandler(&ginSwagger.Config{
+		URL: "/docs/openapi.yaml",
+	}, swaggerFiles.Handler))
 
 	return router
 }

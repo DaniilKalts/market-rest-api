@@ -1,0 +1,494 @@
+openapi: 3.0.0
+info:
+  title: Market REST API
+  description: A REST API for managing market items and user accounts.
+  version: "1.0"
+paths:
+  /item:
+    get:
+      description: Get an item with the specified ID
+      parameters:
+        - description: Item ID
+          in: query
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Item retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.Item"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.BadRequestError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.InternalServerError"
+      summary: Get item by id
+      tags:
+        - Items
+  /item/create:
+    post:
+      description: Create a new item with the given payload
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.RequestCreateItem"
+        description: Item to create
+        required: true
+      responses:
+        "201":
+          description: Item created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.Item"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.BadRequestError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.InternalServerError"
+      summary: Create a new item
+      tags:
+        - Items
+  /item/delete:
+    delete:
+      description: Delete an item with the specified ID
+      parameters:
+        - description: Item ID
+          in: query
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Item deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.Item"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.BadRequestError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.InternalServerError"
+      summary: Delete item
+      tags:
+        - Items
+  /item/update:
+    put:
+      description: Update an existing item with the given payload
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.RequestUpdateItem"
+        description: Item to update
+        required: true
+      responses:
+        "200":
+          description: Item udpated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.Item"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.BadRequestError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.InternalServerError"
+      summary: Update item
+      tags:
+        - Items
+  /items:
+    get:
+      description: Retrieve a list of all items
+      responses:
+        "200":
+          description: A list of items retrieved successfully
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/models.Item"
+                type: array
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.BadRequestError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.InternalServerError"
+      summary: Get all items
+      tags:
+        - Items
+  /user:
+    get:
+      description: Get a user with the specified ID
+      parameters:
+        - description: User ID
+          in: query
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.User"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.BadRequestError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.InternalServerError"
+      summary: Get user by id
+      tags:
+        - Users
+  /user/create:
+    post:
+      description: Create a new user with the given payload
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.RequestCreateUser"
+        description: User to create
+        required: true
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.RequestCreateUser"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.BadRequestError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.InternalServerError"
+      summary: Create a new user
+      tags:
+        - Users
+  /user/delete:
+    delete:
+      description: Delete a user with the specified ID
+      parameters:
+        - description: User ID
+          in: query
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.User"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.BadRequestError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.InternalServerError"
+      summary: Delete user
+      tags:
+        - Users
+  /user/update:
+    put:
+      description: Update an existing user with the given payload
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/models.RequestUpdateUser"
+        description: User to update
+        required: true
+      responses:
+        "200":
+          description: User udpated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.User"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.BadRequestError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.InternalServerError"
+      summary: Update user
+      tags:
+        - Users
+  /users:
+    get:
+      description: Retrieve a list of all users
+      responses:
+        "200":
+          description: A list of users retrieved successfully
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/models.User"
+                type: array
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.BadRequestError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/models.InternalServerError"
+      summary: Get all users
+      tags:
+        - Users
+components:
+  schemas:
+    models.BadRequestError:
+      properties:
+        error:
+          example: Invalid request payload
+          type: string
+      type: object
+    models.InternalServerError:
+      properties:
+        error:
+          example: Failed to create item
+          type: string
+      type: object
+    models.Item:
+      properties:
+        created_at:
+          example: 2025-02-25T12:37:32Z
+          type: string
+        description:
+          example: A fashionable T-shirt with IITU logo.
+          type: string
+        id:
+          example: 1
+          type: integer
+        name:
+          example: T-shirt
+          maxLength: 40
+          minLength: 5
+          type: string
+        price:
+          example: 100
+          maximum: 1000
+          minimum: 100
+          type: integer
+        updated_at:
+          example: 2025-02-25T12:37:32Z
+          type: string
+      required:
+        - name
+        - price
+      type: object
+    models.RequestCreateItem:
+      properties:
+        description:
+          example: A fashionable T-shirt with IITU logo.
+          type: string
+        name:
+          example: T-shirt
+          maxLength: 40
+          minLength: 5
+          type: string
+        price:
+          example: 100
+          maximum: 1000
+          minimum: 100
+          type: integer
+      required:
+        - name
+        - price
+      type: object
+    models.RequestCreateUser:
+      properties:
+        email:
+          example: john.doe@example.com
+          type: string
+        first_name:
+          example: John
+          maxLength: 30
+          minLength: 2
+          type: string
+        last_name:
+          example: Doe
+          maxLength: 30
+          minLength: 2
+          type: string
+        password_hash:
+          example: secret12345
+          minLength: 8
+          type: string
+        phone_number:
+          example: "+12345678901"
+          type: string
+      required:
+        - email
+        - first_name
+        - last_name
+        - password_hash
+      type: object
+    models.RequestUpdateItem:
+      properties:
+        description:
+          example: A fashionable T-shirt with IITU logo.
+          type: string
+        id:
+          example: 1
+          type: integer
+        name:
+          example: T-shirt
+          maxLength: 40
+          minLength: 5
+          type: string
+        price:
+          example: 100
+          maximum: 1000
+          minimum: 100
+          type: integer
+      required:
+        - name
+        - price
+      type: object
+    models.RequestUpdateUser:
+      properties:
+        email:
+          example: john.doe@example.com
+          type: string
+        first_name:
+          example: John
+          maxLength: 30
+          minLength: 2
+          type: string
+        id:
+          example: 1
+          type: integer
+        last_name:
+          example: Doe
+          maxLength: 30
+          minLength: 2
+          type: string
+        password_hash:
+          example: newSecret123
+          minLength: 8
+          type: string
+        phone_number:
+          example: "+12345678901"
+          type: string
+      required:
+        - email
+        - first_name
+        - last_name
+      type: object
+    models.User:
+      properties:
+        created_at:
+          example: 2025-02-25T12:37:32Z
+          type: string
+        email:
+          example: john.doe@example.com
+          type: string
+        first_name:
+          example: John
+          maxLength: 30
+          minLength: 2
+          type: string
+        id:
+          example: 1
+          type: integer
+        last_name:
+          example: Doe
+          maxLength: 30
+          minLength: 2
+          type: string
+        password_hash:
+          example: $2a$10$EKq8Yv9Y1WnrDFEdiMYCSOaz/oq2I9l9ngJyH/eBRM3lIbcJRLS02
+          minLength: 8
+          type: string
+        phone_number:
+          example: "+12345678901"
+          type: string
+        updated_at:
+          example: 2025-02-25T12:37:32Z
+          type: string
+      required:
+        - email
+        - first_name
+        - last_name
+        - password_hash
+      type: object
