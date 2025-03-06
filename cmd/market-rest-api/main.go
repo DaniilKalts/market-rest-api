@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/DaniilKalts/market-rest-api/internal/app"
 	"github.com/DaniilKalts/market-rest-api/internal/config"
 	"github.com/DaniilKalts/market-rest-api/internal/logger"
+	"github.com/DaniilKalts/market-rest-api/internal/server"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 		port = "8080"
 	}
 
-	router := app.SetupApplication()
+	router := server.SetupServer()
 
 	logger.Info("Server is running on: http://localhost:" + port)
 	if err := router.Run(":" + port); err != nil {
