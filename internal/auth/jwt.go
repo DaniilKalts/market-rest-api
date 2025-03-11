@@ -3,9 +3,9 @@ package auth
 import (
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
+	"github.com/DaniilKalts/market-rest-api/internal/config"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -16,7 +16,7 @@ type CustomClaims struct {
 }
 
 func CreateToken(firstName, lastName string) (string, error) {
-	secret := os.Getenv("SECRET")
+	secret := config.Config.Server.Secret
 	if secret == "" {
 		return "", errors.New("SECRET is not set in the environment")
 	}
@@ -42,7 +42,7 @@ func CreateToken(firstName, lastName string) (string, error) {
 }
 
 func VerifyToken(tokenString string) error {
-	secret := os.Getenv("SECRET")
+	secret := config.Config.Server.Secret
 	if secret == "" {
 		return errors.New("SECRET is not set in the environment")
 	}
@@ -65,7 +65,7 @@ func VerifyToken(tokenString string) error {
 }
 
 func ExtractClaimsFromToken(tokenString string) (*CustomClaims, error) {
-	secret := os.Getenv("SECRET")
+	secret := config.Config.Server.Secret
 	if secret == "" {
 		return nil, errors.New("SECRET is not set in the environment")
 	}

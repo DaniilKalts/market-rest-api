@@ -1,16 +1,15 @@
 package server
 
 import (
-	"os"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	"github.com/DaniilKalts/market-rest-api/internal/config"
 	"github.com/DaniilKalts/market-rest-api/internal/logger"
 )
 
 func initDB() *gorm.DB {
-	dsn := os.Getenv("DATABASE_DSN")
+	dsn := config.Config.Database.DSN
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
