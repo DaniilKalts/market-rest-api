@@ -12,6 +12,7 @@ import (
 type UserService interface {
 	CreateUser(user *models.User) error
 	GetUserByID(id int) (*models.User, error)
+	GetUserByEmail(email string) (*models.User, error)
 	GetAllUsers() ([]models.User, error)
 	UpdateUser(user *models.User) error
 	DeleteUser(id int) error
@@ -26,17 +27,21 @@ func NewUserService(repo repositories.UserRepository) UserService {
 }
 
 func (s *userService) CreateUser(user *models.User) error {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return errors.New("Failed to hash password")
 	}
-	user.PasswordHash = string(hashedPassword)
+	user.Password = string(hashedPassword)
 
 	return s.repo.Create(user)
 }
 
 func (s *userService) GetUserByID(id int) (*models.User, error) {
 	return s.repo.GetByID(id)
+}
+
+func (s *userService) GetUserByEmail(email string) (*models.User, error) {
+	return s.repo.GetByEmail(email)
 }
 
 func (s *userService) GetAllUsers() ([]models.User, error) {
@@ -53,14 +58,14 @@ func (s *userService) UpdateUser(user *models.User) error {
 		return errors.New("User not found")
 	}
 
-	if user.PasswordHash != "" && user.PasswordHash != existingUser.PasswordHash {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
+	if user.Password != "" && user.Password != existingUser.Password {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return errors.New("Failed to hash password")
 		}
-		user.PasswordHash = string(hashedPassword)
+		user.Password = string(hashedPassword)
 	} else {
-		user.PasswordHash = existingUser.PasswordHash
+		user.Password = existingUser.Password
 	}
 
 	return s.repo.Update(user)

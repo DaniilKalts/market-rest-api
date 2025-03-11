@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 
 	"github.com/DaniilKalts/market-rest-api/internal/auth"
 	"github.com/DaniilKalts/market-rest-api/internal/logger"
@@ -41,21 +44,45 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
+	if req.Password == "" {
+		logger.Error("Register: password is required")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "password is required"})
+		return
+	}
+
+	if req.ConfirmPassword == "" {
+		logger.Error("Register: confirm password is required")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "confirm password is required"})
+		return
+	}
+
 	if req.Password != req.ConfirmPassword {
 		logger.Error("Register: passwords do not match")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "passwords do not match"})
 		return
 	}
 
+	_, err := h.service.GetUserByEmail(req.Email)
+	if err == nil {
+		logger.Error("Register: user already exists")
+		c.JSON(http.StatusConflict, gin.H{"error": "user already exists"})
+		return
+	} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		logger.Error("Register: error checking for user: " + err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+
 	user := models.User{
-		Email:        req.Email,
-		PasswordHash: req.Password,
-		FirstName:    req.FirstName,
-		LastName:     req.LastName,
+		Email:     req.Email,
+		Password:  req.Password,
+		FirstName: req.FirstName,
+		LastName:  req.LastName,
 	}
 
 	if err := h.service.CreateUser(&user); err != nil {
 		logger.Error("Register: failed to create user: " + err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to create user"})
 		return
 	}
 
@@ -68,7 +95,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 	logger.Info("Register: User registered successfully, ID=" + strconv.Itoa(user.ID))
 	c.JSON(http.StatusCreated, gin.H{
-		"user":         user,
 		"access_token": tokenString,
 	})
 }
@@ -81,7 +107,20 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	tokenString, err := auth.CreateToken("Daniil", "Kalts")
+	user, err := h.service.GetUserByEmail(req.Email)
+	if err != nil {
+		logger.Error("Login: invalid credentials: " + err.Error())
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+		logger.Error("Login: invalid credentials: " + err.Error())
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
+
+	tokenString, err := auth.CreateToken(user.FirstName, user.LastName)
 	if err != nil {
 		logger.Error("Login: failed to create token: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create token"})

@@ -11,6 +11,7 @@ import (
 type UserRepository interface {
 	Create(user *models.User) error
 	GetByID(id int) (*models.User, error)
+	GetByEmail(email string) (*models.User, error)
 	GetAll() ([]models.User, error)
 	Update(user *models.User) error
 	Delete(id int) error
@@ -32,6 +33,17 @@ func (r *userRepository) GetByID(id int) (*models.User, error) {
 	var user models.User
 
 	err := r.db.First(&user, id).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, err
+}
+
+func (r *userRepository) GetByEmail(email string) (*models.User, error) {
+	var user models.User
+
+	err := r.db.Where("email = ?", email).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
