@@ -8,6 +8,6 @@ func SetupServer() *gin.Engine {
 	db := initDB()
 	migrate(db)
 
-	itemHandler, userHandler := initHandlers(db)
-	return setupRouter(itemHandler, userHandler)
+	itemHandler, userHandler, authHandler := initHandlers(db)
+	return setupRouter(itemHandler, userHandler, authHandler)
 }

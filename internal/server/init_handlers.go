@@ -8,7 +8,7 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 )
 
-func initHandlers(db *gorm.DB) (*handlers.ItemHandler, *handlers.UserHandler) {
+func initHandlers(db *gorm.DB) (*handlers.ItemHandler, *handlers.UserHandler, *handlers.AuthHandler) {
 	itemRepo := repositories.NewItemRepository(db)
 	userRepo := repositories.NewUserRepository(db)
 
@@ -17,6 +17,7 @@ func initHandlers(db *gorm.DB) (*handlers.ItemHandler, *handlers.UserHandler) {
 
 	itemHandler := handlers.NewItemHandler(itemService)
 	userHandler := handlers.NewUserHandler(userService)
+	authHandler := handlers.NewAuthHandler(userService)
 
-	return itemHandler, userHandler
+	return itemHandler, userHandler, authHandler
 }

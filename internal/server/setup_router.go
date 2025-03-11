@@ -9,7 +9,7 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/handlers"
 )
 
-func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHandler) *gin.Engine {
+func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler) *gin.Engine {
 	router := gin.Default()
 
 	router.POST("/item/create", itemHandler.CreateItem)
@@ -23,6 +23,9 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 	router.GET("/users", userHandler.GetAllUsers)
 	router.PUT("/user/update", userHandler.UpdateUser)
 	router.DELETE("/user/delete", userHandler.DeleteUser)
+
+	router.POST("/auth/register", authHandler.Register)
+	router.POST("/auth/login", authHandler.Login)
 
 	router.Static("/docs", "./docs")
 	router.GET("/swagger/*any", ginSwagger.CustomWrapHandler(&ginSwagger.Config{
