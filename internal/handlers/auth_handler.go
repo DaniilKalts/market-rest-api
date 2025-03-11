@@ -9,7 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
-	"github.com/DaniilKalts/market-rest-api/internal/auth"
+	"github.com/DaniilKalts/market-rest-api/internal/helpers"
 	"github.com/DaniilKalts/market-rest-api/internal/logger"
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
@@ -86,7 +86,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	tokenString, err := auth.CreateToken(user.FirstName, user.LastName)
+	tokenString, err := helpers.CreateToken(user.FirstName, user.LastName)
 	if err != nil {
 		logger.Info("Register: failed to create token: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create token"})
@@ -120,7 +120,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	tokenString, err := auth.CreateToken(user.FirstName, user.LastName)
+	tokenString, err := helpers.CreateToken(user.FirstName, user.LastName)
 	if err != nil {
 		logger.Error("Login: failed to create token: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create token"})

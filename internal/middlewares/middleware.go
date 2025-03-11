@@ -1,9 +1,10 @@
-package auth
+package middlewares
 
 import (
 	"net/http"
 	"strings"
 
+	"github.com/DaniilKalts/market-rest-api/internal/helpers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,7 +26,7 @@ func JWTMiddleware() gin.HandlerFunc {
 
 		tokenString := parts[1]
 
-		claims, err := ExtractClaimsFromToken(tokenString)
+		claims, err := helpers.ExtractClaimsFromToken(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 			c.Abort()
@@ -37,13 +38,13 @@ func JWTMiddleware() gin.HandlerFunc {
 	}
 }
 
-func FromGinContext(c *gin.Context) (*CustomClaims, bool) {
+func FromGinContext(c *gin.Context) (*helpers.Claims, bool) {
 	claims, exists := c.Get("claims")
 	if !exists {
 		return nil, false
 	}
 
-	customClaims, ok := claims.(*CustomClaims)
+	customClaims, ok := claims.(*helpers.Claims)
 
 	return customClaims, ok
 }

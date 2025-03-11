@@ -1,4 +1,4 @@
-package auth
+package helpers
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type CustomClaims struct {
+type Claims struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	jwt.RegisteredClaims
@@ -21,14 +21,15 @@ func CreateToken(firstName, lastName string) (string, error) {
 		return "", errors.New("SECRET is not set in the environment")
 	}
 
-	expirationTime := time.Now().Add(15 * time.Minute)
+	issuedAt := time.Now()
+	expirationTime := issuedAt.Add(15 * time.Minute)
 
-	claims := CustomClaims{
+	claims := Claims{
 		FirstName: firstName,
 		LastName:  lastName,
 		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(issuedAt),
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
 
@@ -64,13 +65,13 @@ func VerifyToken(tokenString string) error {
 	return nil
 }
 
-func ExtractClaimsFromToken(tokenString string) (*CustomClaims, error) {
+func ExtractClaimsFromToken(tokenString string) (*Claims, error) {
 	secret := config.Config.Server.Secret
 	if secret == "" {
 		return nil, errors.New("SECRET is not set in the environment")
 	}
 
-	claims := &CustomClaims{}
+	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
