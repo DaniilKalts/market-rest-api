@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/DaniilKalts/market-rest-api/internal/config"
@@ -10,26 +9,24 @@ import (
 )
 
 type Claims struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
 	jwt.RegisteredClaims
 }
 
-func CreateToken(firstName, lastName string) (string, error) {
+func CreateToken(issuer, subject string) (string, error) {
 	secret := config.Config.Server.Secret
 	if secret == "" {
 		return "", errors.New("SECRET is not set in the environment")
 	}
 
 	issuedAt := time.Now()
-	expirationTime := issuedAt.Add(15 * time.Minute)
+	expiresAt := issuedAt.Add(15 * time.Minute)
 
 	claims := Claims{
-		FirstName: firstName,
-		LastName:  lastName,
 		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    issuer,
+			Subject:   subject,
 			IssuedAt:  jwt.NewNumericDate(issuedAt),
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			ExpiresAt: jwt.NewNumericDate(expiresAt),
 		},
 	}
 
@@ -40,58 +37,4 @@ func CreateToken(firstName, lastName string) (string, error) {
 	}
 
 	return tokenString, nil
-}
-
-func VerifyToken(tokenString string) error {
-	secret := config.Config.Server.Secret
-	if secret == "" {
-		return errors.New("SECRET is not set in the environment")
-	}
-
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(secret), nil
-	})
-	if err != nil {
-		return err
-	}
-
-	if !token.Valid {
-		return errors.New("Invalid token")
-	}
-
-	return nil
-}
-
-func ExtractClaimsFromToken(tokenString string) (*Claims, error) {
-	secret := config.Config.Server.Secret
-	if secret == "" {
-		return nil, errors.New("SECRET is not set in the environment")
-	}
-
-	claims := &Claims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (any, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(secret), nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	if !token.Valid {
-		return nil, errors.New("invalid token")
-	}
-
-	if claims.ExpiresAt.Unix() < time.Now().Unix() {
-		return nil, errors.New("token is expired")
-	}
-	if claims.FirstName == "" || claims.LastName == "" {
-		return nil, errors.New("missing essential claim data")
-	}
-
-	return claims, nil
 }
