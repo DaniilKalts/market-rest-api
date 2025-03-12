@@ -86,7 +86,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	tokenString, err := helpers.CreateToken(user.FirstName, user.LastName)
+	tokenString, err := helpers.CreateToken("http://localhost:8080/", strconv.Itoa(user.ID), 15)
 	if err != nil {
 		logger.Info("Register: failed to create token: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create token"})
@@ -120,7 +120,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	tokenString, err := helpers.CreateToken(user.FirstName, user.LastName)
+	tokenString, err := helpers.CreateToken("http://localhost:8080/", strconv.Itoa(user.ID), 15)
 	if err != nil {
 		logger.Error("Login: failed to create token: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create token"})

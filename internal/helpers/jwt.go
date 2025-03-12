@@ -12,21 +12,19 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func CreateToken(issuer, subject string) (string, error) {
+func CreateToken(issuer string, subject string, minutes uint) (string, error) {
 	secret := config.Config.Server.Secret
 	if secret == "" {
 		return "", errors.New("SECRET is not set in the environment")
 	}
 
 	issuedAt := time.Now()
-	expiresAt := issuedAt.Add(15 * time.Minute)
-
 	claims := Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    issuer,
 			Subject:   subject,
 			IssuedAt:  jwt.NewNumericDate(issuedAt),
-			ExpiresAt: jwt.NewNumericDate(expiresAt),
+			ExpiresAt: jwt.NewNumericDate(issuedAt.Add(time.Duration(minutes) * time.Minute)),
 		},
 	}
 
