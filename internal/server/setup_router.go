@@ -40,8 +40,8 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 
 	authRoutes := router.Group("/auth")
 	{
-		authRoutes.POST("/register", middlewares.BindBodyMiddleware(&models.User{}), authHandler.Register)
-		authRoutes.POST("/login", middlewares.BindBodyMiddleware(&models.User{}), authHandler.Login)
+		authRoutes.POST("/register", middlewares.BindBodyMiddleware(&handlers.RegisterRequest{}), authHandler.Register)
+		authRoutes.POST("/login", middlewares.BindBodyMiddleware(&handlers.RegisterRequest{}), authHandler.Login)
 	}
 
 	router.Static("/docs", "./docs")

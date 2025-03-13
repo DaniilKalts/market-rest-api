@@ -9,8 +9,10 @@ import (
 )
 
 type ServerConfig struct {
-	Port   string
-	Secret string
+	Port    string
+	Secret  string
+	BaseURL string
+	Domain  string
 }
 
 type DatabaseConfig struct {
@@ -31,8 +33,10 @@ func Load() {
 
 	Config = AppConfig{
 		Server: ServerConfig{
-			Port:   os.Getenv("PORT"),
-			Secret: os.Getenv("SECRET"),
+			Port:    os.Getenv("PORT"),
+			Secret:  os.Getenv("SECRET"),
+			BaseURL: os.Getenv("BASE_URL"),
+			Domain:  os.Getenv("DOMAIN"),
 		},
 		Database: DatabaseConfig{
 			DSN: os.Getenv("DATABASE_DSN"),

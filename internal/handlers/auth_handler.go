@@ -3,7 +3,6 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -29,11 +28,11 @@ type LoginRequest struct {
 }
 
 type RegisterRequest struct {
+	FirstName       string `json:"first_name"`
+	LastName        string `json:"last_name"`
 	Email           string `json:"email"`
 	Password        string `json:"password"`
 	ConfirmPassword string `json:"confirm_password"`
-	FirstName       string `json:"first_name"`
-	LastName        string `json:"last_name"`
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
@@ -49,8 +48,8 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	if req.Password == "" || req.ConfirmPassword == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "password and confirm password are required"})
+	if req.Email == "" || req.Password == "" || req.ConfirmPassword == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email, password and confirm password are required"})
 		return
 	}
 	if req.Password != req.ConfirmPassword {
@@ -66,7 +65,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		logger.Error("Register: error checking for user: " + err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error checking for user"})
 		return
 	}
 
@@ -83,16 +82,16 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	tokenString, err := helpers.CreateToken("http://localhost:8080/", strconv.Itoa(user.ID), 15)
+	accessToken, refreshToken, err := helpers.SetAuthCookies(c.Writer, user.ID)
 	if err != nil {
-		logger.Info("Register: failed to create token: " + err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create token"})
+		logger.Error("Register: failed to set auth cookies: " + err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set auth cookies"})
 		return
 	}
 
-	logger.Info("Register: User registered successfully, ID=" + strconv.Itoa(user.ID))
 	c.JSON(http.StatusCreated, gin.H{
-		"access_token": tokenString,
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
 	})
 }
 
@@ -121,12 +120,15 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	tokenString, err := helpers.CreateToken("http://localhost:8080/", strconv.Itoa(user.ID), 15)
+	accessToken, refreshToken, err := helpers.SetAuthCookies(c.Writer, user.ID)
 	if err != nil {
-		logger.Error("Login: failed to create token: " + err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create token"})
+		logger.Error("Register: failed to set auth cookies: " + err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set auth cookies"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"access_token": tokenString})
+	c.JSON(http.StatusCreated, gin.H{
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+	})
 }
