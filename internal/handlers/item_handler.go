@@ -43,7 +43,7 @@ func (h *ItemHandler) CreateItem(c *gin.Context) {
 }
 
 func (h *ItemHandler) GetItemByID(c *gin.Context) {
-	idStr := c.Query("id")
+	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -99,7 +99,7 @@ func (h *ItemHandler) UpdateItem(c *gin.Context) {
 }
 
 func (h *ItemHandler) DeleteItem(c *gin.Context) {
-	idStr := c.Query("id")
+	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {

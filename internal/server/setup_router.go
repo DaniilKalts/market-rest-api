@@ -7,25 +7,42 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/DaniilKalts/market-rest-api/internal/handlers"
+	"github.com/DaniilKalts/market-rest-api/internal/middlewares"
+	"github.com/DaniilKalts/market-rest-api/internal/models"
 )
 
 func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler) *gin.Engine {
 	router := gin.Default()
 
-	router.POST("/item/create", itemHandler.CreateItem)
-	router.GET("/item", itemHandler.GetItemByID)
-	router.GET("/items", itemHandler.GetAllItems)
-	router.PUT("/item/update", itemHandler.UpdateItem)
-	router.DELETE("/item/delete", itemHandler.DeleteItem)
+	itemPublicRoutes := router.Group("/items")
+	{
+		itemPublicRoutes.GET("/:id", itemHandler.GetItemByID)
+		itemPublicRoutes.GET("", itemHandler.GetAllItems)
+	}
 
-	router.POST("/user/create", userHandler.CreateUser)
-	router.GET("/user", userHandler.GetUserByID)
-	router.GET("/users", userHandler.GetAllUsers)
-	router.PUT("/user/update", userHandler.UpdateUser)
-	router.DELETE("/user/delete", userHandler.DeleteUser)
+	itemPrivateRoutes := router.Group("/items")
+	itemPrivateRoutes.Use(middlewares.JWTMiddleware())
+	{
+		itemPrivateRoutes.POST("", middlewares.BindBodyMiddleware(&models.Item{}), itemHandler.CreateItem)
+		itemPrivateRoutes.PUT("/:id", middlewares.BindBodyMiddleware(&models.Item{}), itemHandler.UpdateItem)
+		itemPrivateRoutes.DELETE("/:id", itemHandler.DeleteItem)
+	}
 
-	router.POST("/auth/register", authHandler.Register)
-	router.POST("/auth/login", authHandler.Login)
+	userRoutes := router.Group("/users")
+	userRoutes.Use(middlewares.JWTMiddleware())
+	{
+		userRoutes.POST("", middlewares.BindBodyMiddleware(&models.User{}), userHandler.CreateUser)
+		userRoutes.GET("/:id", userHandler.GetUserByID)
+		userRoutes.GET("", userHandler.GetAllUsers)
+		userRoutes.PUT("/:id", middlewares.BindBodyMiddleware(&models.User{}), userHandler.UpdateUser)
+		userRoutes.DELETE("/:id", userHandler.DeleteUser)
+	}
+
+	authRoutes := router.Group("/auth")
+	{
+		authRoutes.POST("/register", middlewares.BindBodyMiddleware(&models.User{}), authHandler.Register)
+		authRoutes.POST("/login", middlewares.BindBodyMiddleware(&models.User{}), authHandler.Login)
+	}
 
 	router.Static("/docs", "./docs")
 	router.GET("/swagger/*any", ginSwagger.CustomWrapHandler(&ginSwagger.Config{
