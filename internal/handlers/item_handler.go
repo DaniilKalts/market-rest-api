@@ -20,14 +20,19 @@ func NewItemHandler(service services.ItemService) *ItemHandler {
 }
 
 func (h *ItemHandler) CreateItem(c *gin.Context) {
-	var item models.Item
-
-	if err := c.ShouldBindJSON(&item); err != nil {
-		logger.Error("CreateItem: Invalid request payload: " + err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+	itemInterface, exists := c.Get("model")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
 		return
 	}
-	if err := h.service.CreateItem(&item); err != nil {
+
+	item, ok := itemInterface.(*models.Item)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+		return
+	}
+
+	if err := h.service.CreateItem(item); err != nil {
 		logger.Error("CreateItem: Failed to create item: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create item"})
 		return
@@ -71,14 +76,19 @@ func (h *ItemHandler) GetAllItems(c *gin.Context) {
 }
 
 func (h *ItemHandler) UpdateItem(c *gin.Context) {
-	var item models.Item
-
-	if err := c.ShouldBindJSON(&item); err != nil {
-		logger.Error("UpdateItem: Invalid request payload: " + err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+	itemInterface, exists := c.Get("model")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
 		return
 	}
-	if err := h.service.UpdateItem(&item); err != nil {
+
+	item, ok := itemInterface.(*models.Item)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+		return
+	}
+
+	if err := h.service.UpdateItem(item); err != nil {
 		logger.Error("UpdateItem: Failed to update item: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update item"})
 		return

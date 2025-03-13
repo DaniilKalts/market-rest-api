@@ -20,15 +20,19 @@ func NewUserHandler(service services.UserService) *UserHandler {
 }
 
 func (h *UserHandler) CreateUser(c *gin.Context) {
-	var user models.User
-
-	if err := c.ShouldBindJSON(&user); err != nil {
-		logger.Error("CreateUser: Invalid request payload: " + err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+	userInterface, exists := c.Get("model")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
 		return
 	}
 
-	if err := h.service.CreateUser(&user); err != nil {
+	user, ok := userInterface.(*models.User)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+		return
+	}
+
+	if err := h.service.CreateUser(user); err != nil {
 		logger.Error("CreateUser: Failed to create user: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
@@ -72,14 +76,19 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 }
 
 func (h *UserHandler) UpdateUser(c *gin.Context) {
-	var user models.User
-
-	if err := c.ShouldBindJSON(&user); err != nil {
-		logger.Error("UpdateUser: Invalid request payload: " + err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+	userInterface, exists := c.Get("model")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
 		return
 	}
-	if err := h.service.UpdateUser(&user); err != nil {
+
+	user, ok := userInterface.(*models.User)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+		return
+	}
+
+	if err := h.service.UpdateUser(user); err != nil {
 		logger.Error("UpdateUser: Failed to update user " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
 		return

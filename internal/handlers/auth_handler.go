@@ -37,25 +37,22 @@ type RegisterRequest struct {
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
-	var req RegisterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		logger.Error("Register: invalid request payload: " + err.Error())
+	reqInterface, exists := c.Get("model")
+	if !exists {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
 		return
 	}
 
-	if req.Password == "" {
-		logger.Error("Register: password is required")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "password is required"})
+	req, ok := reqInterface.(*RegisterRequest)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
 		return
 	}
 
-	if req.ConfirmPassword == "" {
-		logger.Error("Register: confirm password is required")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "confirm password is required"})
+	if req.Password == "" || req.ConfirmPassword == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "password and confirm password are required"})
 		return
 	}
-
 	if req.Password != req.ConfirmPassword {
 		logger.Error("Register: passwords do not match")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "passwords do not match"})
@@ -100,9 +97,13 @@ func (h *AuthHandler) Register(c *gin.Context) {
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
-	var req LoginRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		logger.Error("Login: invalid request payload: " + err.Error())
+	reqInterface, exists := c.Get("model")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+	}
+
+	req, ok := reqInterface.(*LoginRequest)
+	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
 		return
 	}
