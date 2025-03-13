@@ -18,6 +18,7 @@ func JWTMiddleware() gin.HandlerFunc {
 		authHeader := c.GetHeader("Authorization")
 		if !strings.HasPrefix(authHeader, "Bearer ") {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header missing or invalid token"})
+			c.Abort()
 			return
 		}
 
@@ -32,6 +33,7 @@ func JWTMiddleware() gin.HandlerFunc {
 		})
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			c.Abort()
 			return
 		}
 
