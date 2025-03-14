@@ -41,7 +41,8 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 	authRoutes := router.Group("/auth")
 	{
 		authRoutes.POST("/register", middlewares.BindBodyMiddleware(&handlers.RegisterRequest{}), authHandler.Register)
-		authRoutes.POST("/login", middlewares.BindBodyMiddleware(&handlers.RegisterRequest{}), authHandler.Login)
+		authRoutes.POST("/login", middlewares.BindBodyMiddleware(&handlers.LoginRequest{}), authHandler.Login)
+		authRoutes.POST("/refresh", authHandler.RefreshToken)
 	}
 
 	router.Static("/docs", "./docs")

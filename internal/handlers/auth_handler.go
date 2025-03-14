@@ -3,11 +3,14 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
+	"github.com/DaniilKalts/market-rest-api/internal/config"
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 	"github.com/DaniilKalts/market-rest-api/pkg/auth"
@@ -121,6 +124,53 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	accessToken, refreshToken, err := auth.SetAuthCookies(c.Writer, user.ID)
+	if err != nil {
+		logger.Error("Register: failed to set auth cookies: " + err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set auth cookies"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+	})
+}
+
+func (h *AuthHandler) RefreshToken(c *gin.Context) {
+	refreshCookie, err := c.Cookie("refresh_token")
+	if err != nil {
+		logger.Error("RefreshToken: refresh token missing: " + err.Error())
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "refresh token missing"})
+		return
+	}
+
+	claims := jwt.MapClaims{}
+	_, err = jwt.ParseWithClaims(refreshCookie, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("Invalid signing method")
+		}
+		return []byte(config.Config.Server.Secret), nil
+	})
+	if err != nil {
+		logger.Error("RefreshToken: error parsing token: " + err.Error())
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired refresh token"})
+		c.Abort()
+		return
+	}
+
+	userIDStr, ok := claims["sub"].(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+		return
+	}
+
+	userID, convErr := strconv.Atoi(userIDStr)
+	if convErr != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID in token"})
+		return
+	}
+
+	accessToken, refreshToken, err := auth.SetAuthCookies(c.Writer, userID)
 	if err != nil {
 		logger.Error("Register: failed to set auth cookies: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set auth cookies"})
