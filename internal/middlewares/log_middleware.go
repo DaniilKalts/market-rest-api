@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/DaniilKalts/market-rest-api/internal/logger"
+	"github.com/DaniilKalts/market-rest-api/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
 

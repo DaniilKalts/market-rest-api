@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/DaniilKalts/market-rest-api/internal/config"
-	"github.com/DaniilKalts/market-rest-api/internal/logger"
+	"github.com/DaniilKalts/market-rest-api/pkg/logger"
 )
 
 func initDB() *gorm.DB {

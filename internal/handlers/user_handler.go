@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/DaniilKalts/market-rest-api/internal/logger"
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
+	"github.com/DaniilKalts/market-rest-api/pkg/logger"
 )
 
 type UserHandler struct {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"github.com/DaniilKalts/market-rest-api/internal/logger"
+	"github.com/DaniilKalts/market-rest-api/pkg/logger"
 )
 
 type ServerConfig struct {

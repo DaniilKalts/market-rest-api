@@ -8,10 +8,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
-	"github.com/DaniilKalts/market-rest-api/internal/helpers"
-	"github.com/DaniilKalts/market-rest-api/internal/logger"
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
+	"github.com/DaniilKalts/market-rest-api/pkg/auth"
+	"github.com/DaniilKalts/market-rest-api/pkg/logger"
 )
 
 type AuthHandler struct {
@@ -82,7 +82,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := helpers.SetAuthCookies(c.Writer, user.ID)
+	accessToken, refreshToken, err := auth.SetAuthCookies(c.Writer, user.ID)
 	if err != nil {
 		logger.Error("Register: failed to set auth cookies: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set auth cookies"})
@@ -120,7 +120,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := helpers.SetAuthCookies(c.Writer, user.ID)
+	accessToken, refreshToken, err := auth.SetAuthCookies(c.Writer, user.ID)
 	if err != nil {
 		logger.Error("Register: failed to set auth cookies: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set auth cookies"})

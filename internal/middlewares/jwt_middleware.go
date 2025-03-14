@@ -25,7 +25,7 @@ func JWTMiddleware() gin.HandlerFunc {
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
 		claims := jwt.MapClaims{}
-		_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (any, error) {
+		_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, errors.New("Invalid signing method")
 			}
