@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
 	"github.com/DaniilKalts/market-rest-api/internal/config"
@@ -117,7 +116,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+	if _, err := auth.CheckPassword(user.Password, req.Password); err != nil {
 		logger.Error("Login: invalid credentials: " + err.Error())
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
