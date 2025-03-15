@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"gorm.io/gorm"
 
 	"github.com/DaniilKalts/market-rest-api/internal/config"
 	"github.com/DaniilKalts/market-rest-api/internal/models"
@@ -17,11 +16,11 @@ import (
 )
 
 type AuthHandler struct {
-	service services.UserService
+	service services.AuthService
 }
 
-func NewAuthHandler(userService services.UserService) *AuthHandler {
-	return &AuthHandler{service: userService}
+func NewAuthHandler(authService services.AuthService) *AuthHandler {
+	return &AuthHandler{service: authService}
 }
 
 type LoginRequest struct {
@@ -60,17 +59,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	_, err := h.service.GetUserByEmail(req.Email)
-	if err == nil {
-		logger.Error("Register: user already exists")
-		c.JSON(http.StatusConflict, gin.H{"error": "user already exists"})
-		return
-	} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		logger.Error("Register: error checking for user: " + err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error checking for user"})
-		return
-	}
-
 	user := models.User{
 		Email:     req.Email,
 		Password:  req.Password,
@@ -78,9 +66,9 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		LastName:  req.LastName,
 	}
 
-	if err := h.service.CreateUser(&user); err != nil {
+	if err := h.service.RegisterUser(&user); err != nil {
 		logger.Error("Register: failed to create user: " + err.Error())
-		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to create user"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -101,6 +89,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	reqInterface, exists := c.Get("model")
 	if !exists {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+		return
 	}
 
 	req, ok := reqInterface.(*LoginRequest)
@@ -109,14 +98,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := h.service.GetUserByEmail(req.Email)
+	user, err := h.service.AuthenticateUser(req.Email, req.Password)
 	if err != nil {
-		logger.Error("Login: invalid credentials: " + err.Error())
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-		return
-	}
-
-	if _, err := auth.CheckPassword(user.Password, req.Password); err != nil {
 		logger.Error("Login: invalid credentials: " + err.Error())
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
@@ -124,7 +107,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	accessToken, refreshToken, err := auth.SetAuthCookies(c.Writer, user.ID)
 	if err != nil {
-		logger.Error("Register: failed to set auth cookies: " + err.Error())
+		logger.Error("Login: failed to set auth cookies: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set auth cookies"})
 		return
 	}

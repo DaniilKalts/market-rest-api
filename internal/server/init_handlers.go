@@ -14,10 +14,11 @@ func initHandlers(db *gorm.DB) (*handlers.ItemHandler, *handlers.UserHandler, *h
 
 	itemService := services.NewItemService(itemRepo)
 	userService := services.NewUserService(userRepo)
+	authService := services.NewAuthService(userRepo)
 
 	itemHandler := handlers.NewItemHandler(itemService)
 	userHandler := handlers.NewUserHandler(userService)
-	authHandler := handlers.NewAuthHandler(userService)
+	authHandler := handlers.NewAuthHandler(authService)
 
 	return itemHandler, userHandler, authHandler
 }
