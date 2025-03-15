@@ -11,8 +11,6 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/config"
 )
 
-var secret = config.Config.Server.Secret
-
 func JWTMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -29,8 +27,9 @@ func JWTMiddleware() gin.HandlerFunc {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, errors.New("Invalid signing method")
 			}
-			return secret, nil
+			return []byte(config.Config.Server.Secret), nil
 		})
+
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 			c.Abort()
