@@ -25,7 +25,7 @@ func NewAuthService(repo repositories.UserRepository) AuthService {
 func (r *authService) RegisterUser(user *models.User) error {
 	existingUser, err := r.repo.GetByEmail(user.Email)
 	if err != nil {
-		return errors.New("Error checking if user exists")
+		return err
 	}
 	if existingUser != nil {
 		return errors.New("User already exists")
@@ -33,12 +33,12 @@ func (r *authService) RegisterUser(user *models.User) error {
 
 	hashedPassword, err := auth.HashPassword(user.Password)
 	if err != nil {
-		return errors.New("Error hashing the password")
+		return err
 	}
 	user.Password = hashedPassword
 
 	if err := r.repo.Create(user); err != nil {
-		return errors.New("Error creating a user")
+		return err
 	}
 
 	return nil

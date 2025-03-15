@@ -12,7 +12,7 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func CreateToken(issuer string, subject string, minutes uint) (string, error) {
+func GenerateJWT(issuer string, subject string, minutes uint) (string, error) {
 	secret := config.Config.Server.Secret
 	if secret == "" {
 		return "", errors.New("SECRET is not set in the environment")
@@ -35,4 +35,20 @@ func CreateToken(issuer string, subject string, minutes uint) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func ParseJWT(tokenString string) (jwt.MapClaims, error) {
+	claims := jwt.MapClaims{}
+
+	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid signing method")
+		}
+		return []byte(config.Config.Server.Secret), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return claims, nil
 }

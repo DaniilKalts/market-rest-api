@@ -37,7 +37,7 @@ func (r *userRepository) GetByID(id int) (*models.User, error) {
 		return nil, err
 	}
 
-	return &user, err
+	return &user, nil
 }
 
 func (r *userRepository) GetByEmail(email string) (*models.User, error) {

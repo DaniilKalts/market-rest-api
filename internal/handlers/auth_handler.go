@@ -1,14 +1,11 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 
-	"github.com/DaniilKalts/market-rest-api/internal/config"
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 	"github.com/DaniilKalts/market-rest-api/pkg/auth"
@@ -50,6 +47,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 
 	if req.Email == "" || req.Password == "" || req.ConfirmPassword == "" {
+		logger.Error("Register: email, password and confirm password are required")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "email, password and confirm password are required"})
 		return
 	}
@@ -126,17 +124,10 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	claims := jwt.MapClaims{}
-	_, err = jwt.ParseWithClaims(refreshCookie, claims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("Invalid signing method")
-		}
-		return []byte(config.Config.Server.Secret), nil
-	})
+	claims, err := auth.ParseJWT(refreshCookie)
 	if err != nil {
 		logger.Error("RefreshToken: error parsing token: " + err.Error())
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired refresh token"})
-		c.Abort()
 		return
 	}
 

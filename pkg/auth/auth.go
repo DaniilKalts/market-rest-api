@@ -8,7 +8,7 @@ import (
 )
 
 func SetAuthCookies(w http.ResponseWriter, userID int) (accessToken, refreshToken string, err error) {
-	accessToken, err = CreateToken(config.Config.Server.BaseURL, strconv.Itoa(userID), 15)
+	accessToken, err = GenerateJWT(config.Config.Server.BaseURL, strconv.Itoa(userID), 15)
 	if err != nil {
 		return "", "", err
 	}
@@ -25,7 +25,7 @@ func SetAuthCookies(w http.ResponseWriter, userID int) (accessToken, refreshToke
 	}
 	http.SetCookie(w, accessCookie)
 
-	refreshToken, err = CreateToken(config.Config.Server.BaseURL, strconv.Itoa(userID), 1440)
+	refreshToken, err = GenerateJWT(config.Config.Server.BaseURL, strconv.Itoa(userID), 1440)
 	if err != nil {
 		return "", "", err
 	}

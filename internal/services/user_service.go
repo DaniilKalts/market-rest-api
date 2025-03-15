@@ -1,8 +1,6 @@
 package services
 
 import (
-	"errors"
-
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/repositories"
 	"github.com/DaniilKalts/market-rest-api/pkg/auth"
@@ -52,9 +50,6 @@ func (s *userService) UpdateUser(user *models.User) error {
 
 	if err != nil {
 		return err
-	}
-	if existingUser == nil {
-		return errors.New("User not found")
 	}
 
 	if user.Password != "" && user.Password != existingUser.Password {
