@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 	"github.com/DaniilKalts/market-rest-api/pkg/auth"
-	"github.com/DaniilKalts/market-rest-api/pkg/logger"
 )
 
 type AuthHandler struct {
@@ -36,23 +36,25 @@ type RegisterRequest struct {
 func (h *AuthHandler) Register(c *gin.Context) {
 	reqInterface, exists := c.Get("model")
 	if !exists {
+		c.Error(errors.New("invalid request payload"))
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
 		return
 	}
 
 	req, ok := reqInterface.(*RegisterRequest)
 	if !ok {
+		c.Error(errors.New("invalid request payload"))
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
 		return
 	}
 
 	if req.Email == "" || req.Password == "" || req.ConfirmPassword == "" {
-		logger.Error("Register: email, password and confirm password are required")
+		c.Error(errors.New("email, password and confirm password are required"))
 		c.JSON(http.StatusBadRequest, gin.H{"error": "email, password and confirm password are required"})
 		return
 	}
 	if req.Password != req.ConfirmPassword {
-		logger.Error("Register: passwords do not match")
+		c.Error(errors.New("passwords do not match"))
 		c.JSON(http.StatusBadRequest, gin.H{"error": "passwords do not match"})
 		return
 	}
@@ -65,14 +67,14 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 
 	if err := h.service.RegisterUser(&user); err != nil {
-		logger.Error("Register: failed to create user: " + err.Error())
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	accessToken, refreshToken, err := auth.SetAuthCookies(c.Writer, user.ID)
 	if err != nil {
-		logger.Error("Register: failed to set auth cookies: " + err.Error())
+		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set auth cookies"})
 		return
 	}
@@ -98,14 +100,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	user, err := h.service.AuthenticateUser(req.Email, req.Password)
 	if err != nil {
-		logger.Error("Login: invalid credentials: " + err.Error())
+		c.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
 
 	accessToken, refreshToken, err := auth.SetAuthCookies(c.Writer, user.ID)
 	if err != nil {
-		logger.Error("Login: failed to set auth cookies: " + err.Error())
+		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set auth cookies"})
 		return
 	}
@@ -119,14 +121,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	refreshCookie, err := c.Cookie("refresh_token")
 	if err != nil {
-		logger.Error("RefreshToken: refresh token missing: " + err.Error())
+		c.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "refresh token missing"})
 		return
 	}
 
 	claims, err := auth.ParseJWT(refreshCookie)
 	if err != nil {
-		logger.Error("RefreshToken: error parsing token: " + err.Error())
+		c.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired refresh token"})
 		return
 	}
@@ -145,7 +147,7 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 
 	accessToken, refreshToken, err := auth.SetAuthCookies(c.Writer, userID)
 	if err != nil {
-		logger.Error("Register: failed to set auth cookies: " + err.Error())
+		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set auth cookies"})
 		return
 	}

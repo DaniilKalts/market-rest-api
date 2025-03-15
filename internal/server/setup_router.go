@@ -13,6 +13,7 @@ import (
 
 func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler) *gin.Engine {
 	router := gin.Default()
+	router.Use(middlewares.LoggerMiddleware())
 
 	itemPublicRoutes := router.Group("/items")
 	{
