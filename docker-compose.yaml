@@ -1,4 +1,26 @@
 services:
+  go:
+    build: .
+    ports:
+      - "${PORT:-8080}:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./.env:/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+
   postgres:
     image: postgres:17.4-alpine3.21
     env_file:
@@ -17,18 +39,6 @@ services:
       timeout: 5s
       retries: 5
 
-  go:
-    build: .
-    ports:
-      - "${PORT:-8080}:8080"
-    env_file:
-      - .env
-    volumes:
-      - ./.env:/.env
-    depends_on:
-      postgres:
-        condition: service_healthy
-
   pgAdmin:
     image: dpage/pgadmin4
     env_file:
@@ -42,4 +52,5 @@ services:
       - postgres
 
 volumes:
+  redis_data:
   pgdata:
