@@ -3,6 +3,8 @@ package services
 import (
 	"errors"
 
+	"github.com/redis/go-redis/v9"
+
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/repositories"
 	"github.com/DaniilKalts/market-rest-api/pkg/auth"
@@ -15,11 +17,12 @@ type AuthService interface {
 }
 
 type authService struct {
-	repo repositories.UserRepository
+	repo        repositories.UserRepository
+	redisClient *redis.Client
 }
 
-func NewAuthService(repo repositories.UserRepository) AuthService {
-	return &authService{repo: repo}
+func NewAuthService(repo repositories.UserRepository, redisClient *redis.Client) AuthService {
+	return &authService{repo: repo, redisClient: redisClient}
 }
 
 func (r *authService) RegisterUser(user *models.User) error {

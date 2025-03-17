@@ -16,7 +16,9 @@ type ServerConfig struct {
 }
 
 type DatabaseConfig struct {
-	DSN string
+	DSN           string
+	RedisDSN      string
+	RedisPassword string
 }
 
 type AppConfig struct {
@@ -39,7 +41,9 @@ func Load() {
 			Domain:  os.Getenv("DOMAIN"),
 		},
 		Database: DatabaseConfig{
-			DSN: os.Getenv("DATABASE_DSN"),
+			DSN:           os.Getenv("DATABASE_DSN"),
+			RedisDSN:      os.Getenv("REDIS_DSN"),
+			RedisPassword: os.Getenv("REDIS_PASSWORD"),
 		},
 	}
 }
