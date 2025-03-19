@@ -76,7 +76,7 @@ func (r *userRepository) Delete(id int) error {
 		return res.Error
 	}
 	if res.RowsAffected == 0 {
-		return errors.New("User not found")
+		return errors.New("user not found")
 	}
 
 	return nil

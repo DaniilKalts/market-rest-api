@@ -9,7 +9,7 @@ import (
 
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
-	"github.com/DaniilKalts/market-rest-api/pkg/auth"
+	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 )
 
 type AuthHandler struct {
@@ -72,10 +72,16 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := auth.SetAuthCookies(c.Writer, user.ID)
+	accessToken, refreshToken, err := jwt.SetAuthCookies(c.Writer, user.ID)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set auth cookies"})
+		return
+	}
+
+	if err := h.service.SaveUserToken(user.ID, accessToken); err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set access token in redis"})
 		return
 	}
 
@@ -105,10 +111,16 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := auth.SetAuthCookies(c.Writer, user.ID)
+	accessToken, refreshToken, err := jwt.SetAuthCookies(c.Writer, user.ID)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set auth cookies"})
+		return
+	}
+
+	if err := h.service.SaveUserToken(user.ID, accessToken); err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set access token in redis"})
 		return
 	}
 
@@ -126,7 +138,7 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	claims, err := auth.ParseJWT(refreshCookie)
+	claims, err := jwt.ParseJWT(refreshCookie)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired refresh token"})
@@ -145,10 +157,16 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := auth.SetAuthCookies(c.Writer, userID)
+	accessToken, refreshToken, err := jwt.SetAuthCookies(c.Writer, userID)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set auth cookies"})
+		return
+	}
+
+	if err := h.service.SaveUserToken(userID, accessToken); err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set access token in redis"})
 		return
 	}
 

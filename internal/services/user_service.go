@@ -3,7 +3,7 @@ package services
 import (
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/repositories"
-	"github.com/DaniilKalts/market-rest-api/pkg/auth"
+	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 )
 
 type UserService interface {
@@ -24,7 +24,7 @@ func NewUserService(repo repositories.UserRepository) UserService {
 }
 
 func (s *userService) CreateUser(user *models.User) error {
-	hashedPassword, err := auth.HashPassword(user.Password)
+	hashedPassword, err := jwt.HashPassword(user.Password)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (s *userService) UpdateUser(user *models.User) error {
 	}
 
 	if user.Password != "" && user.Password != existingUser.Password {
-		hashedPassword, err := auth.HashPassword(user.Password)
+		hashedPassword, err := jwt.HashPassword(user.Password)
 		if err != nil {
 			return err
 		}
