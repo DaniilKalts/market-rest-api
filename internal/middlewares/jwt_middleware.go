@@ -10,10 +10,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/DaniilKalts/market-rest-api/internal/config"
-	"github.com/DaniilKalts/market-rest-api/internal/services"
+	"github.com/DaniilKalts/market-rest-api/pkg/redis"
 )
 
-func JWTMiddleware(authService services.AuthService) gin.HandlerFunc {
+func JWTMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if !strings.HasPrefix(authHeader, "Bearer ") {
@@ -59,7 +59,7 @@ func JWTMiddleware(authService services.AuthService) gin.HandlerFunc {
 			return
 		}
 
-		valid, err := authService.ValidateUserToken(userID, tokenString)
+		valid, err := tokenStore.ValidateJWToken(userID, tokenString)
 		if err != nil || !valid {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized or invalid token"})
 			c.Abort()

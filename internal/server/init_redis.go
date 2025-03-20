@@ -1,26 +1,11 @@
 package server
 
-import (
-	"context"
+import "github.com/DaniilKalts/market-rest-api/pkg/redis"
 
-	"github.com/redis/go-redis/v9"
+func initRedis() *redis.TokenStore {
+	redisClient := redis.NewClient()
 
-	"github.com/DaniilKalts/market-rest-api/internal/config"
-	"github.com/DaniilKalts/market-rest-api/pkg/logger"
-)
+	tokenStore := redis.NewTokenStore(redisClient)
 
-func initRedis() *redis.Client {
-	opt, err := redis.ParseURL(config.Config.Database.RedisDSN)
-	if err != nil {
-		logger.Fatal("Failed to parse Redis DSN: " + err.Error())
-	}
-
-	client := redis.NewClient(opt)
-
-	ctx := context.Background()
-	if err := client.Ping(ctx).Err(); err != nil {
-		logger.Fatal("Failed to connect to Redis: " + err.Error())
-	}
-
-	return client
+	return tokenStore
 }

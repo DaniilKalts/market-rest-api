@@ -9,10 +9,10 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/handlers"
 	"github.com/DaniilKalts/market-rest-api/internal/middlewares"
 	"github.com/DaniilKalts/market-rest-api/internal/models"
-	"github.com/DaniilKalts/market-rest-api/internal/services"
+	"github.com/DaniilKalts/market-rest-api/pkg/redis"
 )
 
-func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler, authService *services.AuthService) *gin.Engine {
+func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler, tokenStore *redis.TokenStore) *gin.Engine {
 	router := gin.Default()
 	router.Use(middlewares.LoggerMiddleware())
 
@@ -23,7 +23,7 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 	}
 
 	itemPrivateRoutes := router.Group("/items")
-	itemPrivateRoutes.Use(middlewares.JWTMiddleware(*authService))
+	itemPrivateRoutes.Use(middlewares.JWTMiddleware(tokenStore))
 	{
 		itemPrivateRoutes.POST("", middlewares.BindBodyMiddleware(&models.Item{}), itemHandler.CreateItem)
 		itemPrivateRoutes.PUT("/:id", middlewares.BindBodyMiddleware(&models.Item{}), itemHandler.UpdateItem)
@@ -31,7 +31,7 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 	}
 
 	userRoutes := router.Group("/users")
-	userRoutes.Use(middlewares.JWTMiddleware(*authService))
+	userRoutes.Use(middlewares.JWTMiddleware(tokenStore))
 	{
 		userRoutes.POST("", middlewares.BindBodyMiddleware(&models.User{}), userHandler.CreateUser)
 		userRoutes.GET("/:id", userHandler.GetUserByID)

@@ -10,14 +10,16 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
+	"github.com/DaniilKalts/market-rest-api/pkg/redis"
 )
 
 type AuthHandler struct {
-	service services.AuthService
+	service    services.AuthService
+	tokenStore *redis.TokenStore
 }
 
-func NewAuthHandler(authService services.AuthService) *AuthHandler {
-	return &AuthHandler{service: authService}
+func NewAuthHandler(authService services.AuthService, tokenStore *redis.TokenStore) *AuthHandler {
+	return &AuthHandler{service: authService, tokenStore: tokenStore}
 }
 
 type LoginRequest struct {
@@ -79,7 +81,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.SaveUserToken(user.ID, accessToken); err != nil {
+	if err := h.tokenStore.SaveJWToken(user.ID, accessToken); err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set access token in redis"})
 		return
@@ -118,7 +120,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.SaveUserToken(user.ID, accessToken); err != nil {
+	if err := h.tokenStore.SaveJWToken(user.ID, accessToken); err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set access token in redis"})
 		return
@@ -164,7 +166,7 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.SaveUserToken(userID, accessToken); err != nil {
+	if err := h.tokenStore.SaveJWToken(userID, accessToken); err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set access token in redis"})
 		return
