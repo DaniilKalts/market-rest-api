@@ -9,11 +9,13 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/handlers"
 	"github.com/DaniilKalts/market-rest-api/internal/middlewares"
 	"github.com/DaniilKalts/market-rest-api/internal/models"
-	"github.com/DaniilKalts/market-rest-api/pkg/redis"
 )
 
-func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler, tokenStore *redis.TokenStore) *gin.Engine {
+func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler) *gin.Engine {
 	router := gin.Default()
+
+	tokenStore := initRedis()
+
 	router.Use(middlewares.LoggerMiddleware())
 
 	itemPublicRoutes := router.Group("/items")

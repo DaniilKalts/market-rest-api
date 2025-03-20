@@ -10,9 +10,16 @@ func SetupServer() *gin.Engine {
 
 	tokenStore := initRedis()
 
-	itemHandler, userHandler, authHandler := initHandlers(db, tokenStore)
+	itemRepository, userRepository := initRepositories(db)
+	itemService, userService, authService := initServices(itemRepository, userRepository)
+	itemHandler, userHandler, authHandler := initHandlers(
+		itemService,
+		userService,
+		authService,
+		tokenStore,
+	)
 
-	router := setupRouter(itemHandler, userHandler, authHandler, tokenStore)
+	router := setupRouter(itemHandler, userHandler, authHandler)
 
 	return router
 }
