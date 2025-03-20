@@ -15,15 +15,19 @@ type ServerConfig struct {
 	Domain  string
 }
 
-type DatabaseConfig struct {
+type PostgresConfig struct {
+	DSN string
+}
+
+type RedisConfig struct {
 	DSN           string
-	RedisDSN      string
 	RedisPassword string
 }
 
 type AppConfig struct {
 	Server   ServerConfig
-	Database DatabaseConfig
+	Postgres PostgresConfig
+	Redis    RedisConfig
 }
 
 var Config AppConfig
@@ -40,9 +44,11 @@ func Load() {
 			BaseURL: os.Getenv("BASE_URL"),
 			Domain:  os.Getenv("DOMAIN"),
 		},
-		Database: DatabaseConfig{
-			DSN:           os.Getenv("DATABASE_DSN"),
-			RedisDSN:      os.Getenv("REDIS_DSN"),
+		Postgres: PostgresConfig{
+			DSN: os.Getenv("POSTGRES_DSN"),
+		},
+		Redis: RedisConfig{
+			DSN:           os.Getenv("REDIS_DSN"),
 			RedisPassword: os.Getenv("REDIS_PASSWORD"),
 		},
 	}

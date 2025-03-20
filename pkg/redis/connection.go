@@ -10,7 +10,7 @@ import (
 )
 
 func NewClient() *redis.Client {
-	opt, err := redis.ParseURL(config.Config.Database.RedisDSN)
+	opt, err := redis.ParseURL(config.Config.Redis.DSN)
 	if err != nil {
 		logger.Fatal("Failed to parse Redis DSN: " + err.Error())
 	}
