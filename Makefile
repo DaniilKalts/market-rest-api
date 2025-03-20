@@ -1,4 +1,6 @@
-.PHONY: create-db build run
+.PHONY: create-db build run docker-clean docker-run
+
+# Without Docker
 
 # If you have a different database name, replace 'market' with your database name
 create-db:
@@ -10,3 +12,12 @@ build: create-db
 
 run: build
 	./market-rest-api
+
+# With Docker
+
+docker-clean:
+	docker-compose down --remove-orphans
+	docker system prune -f
+
+docker-run: docker-clean
+	docker-compose up --build
