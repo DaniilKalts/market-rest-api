@@ -143,17 +143,11 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	claims, err := jwt.ParseJWT(refreshCookie)
 	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired refresh token"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err})
 		return
 	}
 
-	userIDStr, ok := claims["sub"].(string)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
-		return
-	}
-
-	userID, convErr := strconv.Atoi(userIDStr)
+	userID, convErr := strconv.Atoi(claims.Subject)
 	if convErr != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID in token"})
 		return

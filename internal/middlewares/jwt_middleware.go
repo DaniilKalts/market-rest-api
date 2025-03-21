@@ -1,15 +1,13 @@
 package middlewares
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 
-	"github.com/DaniilKalts/market-rest-api/internal/config"
+	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 	"github.com/DaniilKalts/market-rest-api/pkg/redis"
 )
 
@@ -24,35 +22,14 @@ func JWTMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
-		claims := jwt.MapClaims{}
-		_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("Invalid signing method")
-			}
-			return []byte(config.Config.Server.Secret), nil
-		})
-
+		claims, err := jwt.ParseJWT(tokenString)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err})
 			c.Abort()
 			return
 		}
 
-		userIDVal, ok := claims["sub"]
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "user id not found in token"})
-			c.Abort()
-			return
-		}
-
-		userIDStr, ok := userIDVal.(string)
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user id in token"})
-			c.Abort()
-			return
-		}
-
-		userID, convErr := strconv.Atoi(userIDStr)
+		userID, convErr := strconv.Atoi(claims.Subject)
 		if convErr != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid used id in token"})
 			c.Abort()

@@ -25,28 +25,22 @@ func (ts *TokenStore) SaveJWToken(userID int, token string) error {
 		return err
 	}
 
-	expVal, ok := claims["exp"]
-	if !ok {
-		return errors.New("expiration time not found in token")
-	}
-
-	expFloat, ok := expVal.(float64)
-	if !ok {
-		return errors.New("expiration time is not a valid number")
-	}
-
-	expTime := time.Unix(int64(expFloat), 0)
-	duration := time.Until(expTime)
+	duration := time.Until(claims.ExpiresAt.Time)
 	if duration <= 0 {
 		return errors.New("token has already expired")
 	}
 
-	key := fmt.Sprintf("user:%d:jwt", userID)
+	key := fmt.Sprintf("user:%d:jwt:%s", userID, claims.ID)
 	return ts.redisClient.Set(context.Background(), key, token, duration).Err()
 }
 
 func (ts *TokenStore) ValidateJWToken(userID int, token string) (bool, error) {
-	key := fmt.Sprintf("user:%d:jwt", userID)
+	claims, err := jwt.ParseJWT(token)
+	if err != nil {
+		return false, err
+	}
+
+	key := fmt.Sprintf("user:%d:jwt:%s", userID, claims.ID)
 	storedToken, err := ts.redisClient.Get(context.Background(), key).Result()
 	if err != nil {
 		if err == redis.Nil {
