@@ -22,21 +22,23 @@ func NewUserHandler(service services.UserService) *UserHandler {
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	userInterface, exists := c.Get("model")
 	if !exists {
-		c.Error(errors.New("invalid request payload"))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+		err := errors.New("request payload not found")
+		c.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	user, ok := userInterface.(*models.User)
 	if !ok {
-		c.Error(errors.New("invalid request payload"))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+		err := errors.New("invalid user payload")
+		c.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := h.service.CreateUser(user); err != nil {
 		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -49,14 +51,14 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	user, err := h.service.GetUserByID(id)
 	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -67,7 +69,7 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 	users, err := h.service.GetAllUsers()
 	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve Users"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -77,20 +79,23 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	userInterface, exists := c.Get("model")
 	if !exists {
-		c.Error(errors.New("invalid request payload"))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+		err := errors.New("request payload not found")
+		c.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
 	user, ok := userInterface.(*models.User)
 	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+		err := errors.New("invalid user payload")
+		c.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := h.service.UpdateUser(user); err != nil {
 		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -102,16 +107,16 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		c.Error(errors.New("invalid user ID"))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID"})
+		c.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := h.service.DeleteUser(id); err != nil {
 		c.Error(err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "user deleted successfully"})
 }

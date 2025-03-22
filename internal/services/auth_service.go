@@ -31,12 +31,6 @@ func (r *authService) RegisterUser(user *models.User) error {
 		return errors.New("user already exists")
 	}
 
-	hashedPassword, err := jwt.HashPassword(user.Password)
-	if err != nil {
-		return err
-	}
-	user.Password = hashedPassword
-
 	if err := r.repo.Create(user); err != nil {
 		return err
 	}

@@ -22,21 +22,23 @@ func NewItemHandler(service services.ItemService) *ItemHandler {
 func (h *ItemHandler) CreateItem(c *gin.Context) {
 	itemInterface, exists := c.Get("model")
 	if !exists {
-		c.Error(errors.New("invalid request payload"))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+		err := errors.New("request payload not found")
+		c.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	item, ok := itemInterface.(*models.Item)
 	if !ok {
-		c.Error(errors.New("invalid request payload"))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+		err := errors.New("invalid item payload")
+		c.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := h.service.CreateItem(item); err != nil {
 		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create item"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -49,14 +51,14 @@ func (h *ItemHandler) GetItemByID(c *gin.Context) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Item ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	item, err := h.service.GetItemByID(id)
 	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Item not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -67,7 +69,7 @@ func (h *ItemHandler) GetAllItems(c *gin.Context) {
 	items, err := h.service.GetAllItems()
 	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve items"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -77,21 +79,23 @@ func (h *ItemHandler) GetAllItems(c *gin.Context) {
 func (h *ItemHandler) UpdateItem(c *gin.Context) {
 	itemInterface, exists := c.Get("model")
 	if !exists {
-		c.Error(errors.New("invalid request payload"))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+		err := errors.New("request payload not found")
+		c.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
 	item, ok := itemInterface.(*models.Item)
 	if !ok {
-		c.Error(errors.New("invalid request payload"))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
+		err := errors.New("invalid item payload")
+		c.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := h.service.UpdateItem(item); err != nil {
 		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update item"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -104,14 +108,14 @@ func (h *ItemHandler) DeleteItem(c *gin.Context) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Item ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	if err := h.service.DeleteItem(id); err != nil {
 		c.Error(err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Item not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Item deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "item deleted successfully"})
 }

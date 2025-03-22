@@ -24,12 +24,6 @@ func NewUserService(repo repositories.UserRepository) UserService {
 }
 
 func (s *userService) CreateUser(user *models.User) error {
-	hashedPassword, err := jwt.HashPassword(user.Password)
-	if err != nil {
-		return err
-	}
-	user.Password = hashedPassword
-
 	return s.repo.Create(user)
 }
 
@@ -47,7 +41,6 @@ func (s *userService) GetAllUsers() ([]models.User, error) {
 
 func (s *userService) UpdateUser(user *models.User) error {
 	existingUser, err := s.repo.GetByID(user.ID)
-
 	if err != nil {
 		return err
 	}
