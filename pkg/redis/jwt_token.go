@@ -34,6 +34,38 @@ func (ts *TokenStore) SaveJWToken(userID int, token string) error {
 	return ts.redisClient.Set(context.Background(), key, token, duration).Err()
 }
 
+func (ts *TokenStore) SaveJWTokens(userID int, accessToken, refreshToken string) error {
+	if err := ts.SaveJWToken(userID, accessToken); err != nil {
+		return err
+	}
+	if err := ts.SaveJWToken(userID, refreshToken); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ts *TokenStore) DeleteJWToken(userID int, token string) error {
+	claims, err := jwt.ParseJWT(token)
+	if err != nil {
+		return err
+	}
+
+	key := fmt.Sprintf("user:%d:jwt:%s", userID, claims.ID)
+	return ts.redisClient.Del(context.Background(), key).Err()
+}
+
+func (ts *TokenStore) DeleteJWTokens(userID int, acceessToken, refreshToken string) error {
+	if err := ts.DeleteJWToken(userID, acceessToken); err != nil {
+		return err
+	}
+	if err := ts.DeleteJWToken(userID, refreshToken); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (ts *TokenStore) ValidateJWToken(userID int, token string) (bool, error) {
 	claims, err := jwt.ParseJWT(token)
 	if err != nil {

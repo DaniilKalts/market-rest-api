@@ -65,7 +65,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	if err := h.tokenStore.SaveJWToken(user.ID, accessToken); err != nil {
+	if err := h.tokenStore.SaveJWTokens(user.ID, accessToken, refreshToken); err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -108,7 +108,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	if err := h.tokenStore.SaveJWToken(user.ID, accessToken); err != nil {
+	if err := h.tokenStore.SaveJWTokens(user.ID, accessToken, refreshToken); err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -120,15 +120,59 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
-func (h *AuthHandler) RefreshToken(c *gin.Context) {
-	refreshCookie, err := c.Cookie("refresh_token")
+func (h *AuthHandler) Logout(c *gin.Context) {
+	accessToken, err := c.Cookie("access_token")
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	claims, err := jwt.ParseJWT(refreshCookie)
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		c.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	accessTokenClaims, err := jwt.ParseJWT(accessToken)
+	if err != nil {
+		c.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, convErr := strconv.Atoi(accessTokenClaims.Subject)
+	if convErr != nil {
+		c.Error(convErr)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": convErr.Error()})
+		return
+	}
+
+	if err := jwt.DeleteAuthCookies(c.Writer); err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.tokenStore.DeleteJWTokens(userID, accessToken, refreshToken); err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "logout successfull"})
+}
+
+func (h *AuthHandler) RefreshToken(c *gin.Context) {
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		c.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	claims, err := jwt.ParseJWT(refreshToken)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
@@ -137,7 +181,6 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 
 	userID, convErr := strconv.Atoi(claims.Subject)
 	if convErr != nil {
-		err = errors.New("invalid user ID in token")
 		c.Error(convErr)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": convErr.Error()})
 		return
@@ -150,7 +193,7 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	if err := h.tokenStore.SaveJWToken(userID, accessToken); err != nil {
+	if err := h.tokenStore.SaveJWTokens(userID, accessToken, refreshToken); err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

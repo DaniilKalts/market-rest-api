@@ -11,7 +11,6 @@ import (
 type AuthService interface {
 	RegisterUser(user *models.User) error
 	AuthenticateUser(email string, password string) (*models.User, error)
-	Logout(userID int) error
 }
 
 type authService struct {
@@ -51,8 +50,4 @@ func (r *authService) AuthenticateUser(email string, password string) (*models.U
 	}
 
 	return user, nil
-}
-
-func (r *authService) Logout(userID int) error {
-	return nil
 }

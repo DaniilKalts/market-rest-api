@@ -46,6 +46,7 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 	{
 		authRoutes.POST("/register", middlewares.BindBodyMiddleware(&models.RegisterUser{}), authHandler.Register)
 		authRoutes.POST("/login", middlewares.BindBodyMiddleware(&models.LoginUser{}), authHandler.Login)
+		authRoutes.POST("/logout", middlewares.BindBodyMiddleware(tokenStore), authHandler.Logout)
 		authRoutes.POST("/refresh", authHandler.RefreshToken)
 	}
 

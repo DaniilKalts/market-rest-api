@@ -44,3 +44,31 @@ func SetAuthCookies(w http.ResponseWriter, userID int) (accessToken, refreshToke
 
 	return accessToken, refreshToken, nil
 }
+
+func DeleteAuthCookies(w http.ResponseWriter) error {
+	accessCookie := &http.Cookie{
+		Name:     "access_token",
+		Value:    "",
+		Path:     "/",
+		Domain:   config.Config.Server.Domain,
+		MaxAge:   -1,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	}
+	http.SetCookie(w, accessCookie)
+
+	refreshCookie := &http.Cookie{
+		Name:     "refresh_token",
+		Value:    "",
+		Path:     "/",
+		Domain:   config.Config.Server.Domain,
+		MaxAge:   -1,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	}
+	http.SetCookie(w, refreshCookie)
+
+	return nil
+}

@@ -55,7 +55,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
     get:
       tags:
         - Items
@@ -511,14 +510,7 @@ paths:
       tags:
         - Authentication
       summary: Logout
-      description: Log out a user with the given userID.
-      parameters:
-        - name: userID
-          in: query
-          required: true
-          description: User ID to log out.
-          schema:
-            type: integer
+      description: Log out the currently authenticated user.
       responses:
         "200":
           description: User logged out successfully.
