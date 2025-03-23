@@ -35,7 +35,6 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 	userRoutes := router.Group("/users")
 	userRoutes.Use(middlewares.JWTMiddleware(tokenStore))
 	{
-		userRoutes.POST("", middlewares.BindBodyMiddleware(&models.User{}), userHandler.CreateUser)
 		userRoutes.GET("/:id", userHandler.GetUserByID)
 		userRoutes.GET("", userHandler.GetAllUsers)
 		userRoutes.PUT("/:id", middlewares.BindBodyMiddleware(&models.User{}), userHandler.UpdateUser)
