@@ -43,7 +43,7 @@ func JWTMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
 			return
 		}
 
-		c.Set("userID", userID)
+		c.Set("claims", claims)
 		c.Next()
 	}
 }

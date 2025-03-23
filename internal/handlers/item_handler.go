@@ -9,6 +9,7 @@ import (
 
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
+	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 )
 
 type ItemHandler struct {
@@ -20,6 +21,29 @@ func NewItemHandler(service services.ItemService) *ItemHandler {
 }
 
 func (h *ItemHandler) CreateItem(c *gin.Context) {
+	claimsInterface, exists := c.Get("claims")
+	if !exists {
+		err := errors.New("token claims not found")
+		c.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	claims, ok := claimsInterface.(*jwt.Claims)
+	if !ok {
+		err := errors.New("failed to parse token claims")
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if claims.Role != "admin" {
+		err := errors.New("admin access only")
+		c.Error(err)
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
+	}
+
 	itemInterface, exists := c.Get("model")
 	if !exists {
 		err := errors.New("request payload not found")
@@ -77,6 +101,29 @@ func (h *ItemHandler) GetAllItems(c *gin.Context) {
 }
 
 func (h *ItemHandler) UpdateItem(c *gin.Context) {
+	claimsInterface, exists := c.Get("claims")
+	if !exists {
+		err := errors.New("token claims not found")
+		c.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	claims, ok := claimsInterface.(*jwt.Claims)
+	if !ok {
+		err := errors.New("failed to parse token claims")
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if claims.Role != "admin" {
+		err := errors.New("admin access only")
+		c.Error(err)
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
+	}
+
 	itemInterface, exists := c.Get("model")
 	if !exists {
 		err := errors.New("request payload not found")
@@ -103,6 +150,29 @@ func (h *ItemHandler) UpdateItem(c *gin.Context) {
 }
 
 func (h *ItemHandler) DeleteItem(c *gin.Context) {
+	claimsInterface, exists := c.Get("claims")
+	if !exists {
+		err := errors.New("token claims not found")
+		c.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	claims, ok := claimsInterface.(*jwt.Claims)
+	if !ok {
+		err := errors.New("failed to parse token claims")
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if claims.Role != "admin" {
+		err := errors.New("admin access only")
+		c.Error(err)
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
+	}
+
 	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)

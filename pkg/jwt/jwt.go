@@ -62,10 +62,10 @@ func GenerateJWT(issuer string, subject string, minutes uint) (string, error) {
 	return tokenString, nil
 }
 
-func ParseJWT(tokenString string) (Claims, error) {
-	claims := Claims{}
+func ParseJWT(tokenString string) (*Claims, error) {
+	claims := &Claims{}
 
-	_, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
 		}

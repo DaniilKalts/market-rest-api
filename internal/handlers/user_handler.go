@@ -9,6 +9,7 @@ import (
 
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
+	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 )
 
 type UserHandler struct {
@@ -20,6 +21,29 @@ func NewUserHandler(service services.UserService) *UserHandler {
 }
 
 func (h *UserHandler) GetUserByID(c *gin.Context) {
+	claimsInterface, exists := c.Get("claims")
+	if !exists {
+		err := errors.New("token claims not found")
+		c.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	claims, ok := claimsInterface.(*jwt.Claims)
+	if !ok {
+		err := errors.New("failed to parse token claims")
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if claims.Role != "admin" {
+		err := errors.New("admin access only")
+		c.Error(err)
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
+	}
+
 	idStr := c.Param("id")
 
 	id, err := strconv.Atoi(idStr)
@@ -40,6 +64,29 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 }
 
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
+	claimsInterface, exists := c.Get("claims")
+	if !exists {
+		err := errors.New("token claims not found")
+		c.Error(err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	claims, ok := claimsInterface.(*jwt.Claims)
+	if !ok {
+		err := errors.New("failed to parse token claims")
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if claims.Role != "admin" {
+		err := errors.New("admin access only")
+		c.Error(err)
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
+	}
+
 	users, err := h.service.GetAllUsers()
 	if err != nil {
 		c.Error(err)
