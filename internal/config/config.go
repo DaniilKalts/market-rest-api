@@ -24,10 +24,19 @@ type RedisConfig struct {
 	RedisPassword string
 }
 
+type AdminConfig struct {
+	FirstName   string
+	LastName    string
+	Email       string
+	Password    string
+	PhoneNumber string
+}
+
 type AppConfig struct {
 	Server   ServerConfig
 	Postgres PostgresConfig
 	Redis    RedisConfig
+	Admin    AdminConfig
 }
 
 var Config AppConfig
@@ -50,6 +59,13 @@ func Load() {
 		Redis: RedisConfig{
 			DSN:           os.Getenv("REDIS_DSN"),
 			RedisPassword: os.Getenv("REDIS_PASSWORD"),
+		},
+		Admin: AdminConfig{
+			FirstName:   os.Getenv("ADMIN_FIRST_NAME"),
+			LastName:    os.Getenv("ADMIN_LAST_NAME"),
+			Email:       os.Getenv("ADMIN_EMAIL"),
+			Password:    os.Getenv("ADMIN_PASSWORD"),
+			PhoneNumber: os.Getenv("ADMIN_PHONE_NUMBER"),
 		},
 	}
 }
