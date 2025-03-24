@@ -1,10 +1,12 @@
 package server
 
 import (
-	"github.com/gin-gonic/gin"
+	"net/http"
+
+	"github.com/DaniilKalts/market-rest-api/internal/config"
 )
 
-func SetupServer() *gin.Engine {
+func SetupServer() *http.Server {
 	db := initDB()
 	migrate(db)
 
@@ -19,7 +21,17 @@ func SetupServer() *gin.Engine {
 		tokenStore,
 	)
 
+	port := config.Config.Server.Port
+	if port == "" {
+		port = "8080"
+	}
+
 	router := setupRouter(itemHandler, userHandler, authHandler)
 
-	return router
+	srv := &http.Server{
+		Addr:    ":" + config.Config.Server.Port,
+		Handler: router,
+	}
+
+	return srv
 }
