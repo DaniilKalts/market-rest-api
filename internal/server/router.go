@@ -25,7 +25,7 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 	}
 
 	itemPrivateRoutes := router.Group("/items")
-	itemPrivateRoutes.Use(middlewares.JWTMiddleware(tokenStore))
+	itemPrivateRoutes.Use(middlewares.JWTMiddleware(tokenStore), middlewares.TokenStoreMiddleware(tokenStore))
 	{
 		itemPrivateRoutes.POST("", middlewares.BindBodyMiddleware(&models.Item{}), itemHandler.CreateItem)
 		itemPrivateRoutes.PUT("/:id", middlewares.BindBodyMiddleware(&models.Item{}), itemHandler.UpdateItem)
@@ -33,7 +33,7 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 	}
 
 	userRoutes := router.Group("/users")
-	userRoutes.Use(middlewares.JWTMiddleware(tokenStore))
+	userRoutes.Use(middlewares.JWTMiddleware(tokenStore), middlewares.TokenStoreMiddleware(tokenStore))
 	{
 		userRoutes.GET("/:id", userHandler.GetUserByID)
 		userRoutes.GET("", userHandler.GetAllUsers)
