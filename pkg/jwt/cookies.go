@@ -7,68 +7,39 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/config"
 )
 
+func SetCookie(w http.ResponseWriter, name, value, domain string, maxAge int, secure, httpOnly bool, sameSite http.SameSite) {
+	cookie := &http.Cookie{
+		Name:     name,
+		Value:    value,
+		Path:     "/",
+		Domain:   domain,
+		MaxAge:   maxAge,
+		Secure:   secure,
+		HttpOnly: httpOnly,
+		SameSite: sameSite,
+	}
+	http.SetCookie(w, cookie)
+}
+
 func SetAuthCookies(w http.ResponseWriter, userID int) (accessToken, refreshToken string, err error) {
 	accessToken, err = GenerateJWT(config.Config.Server.BaseURL, strconv.Itoa(userID), 15)
 	if err != nil {
 		return "", "", err
 	}
-
-	accessCookie := &http.Cookie{
-		Name:     "access_token",
-		Value:    accessToken,
-		Path:     "/",
-		Domain:   config.Config.Server.Domain,
-		MaxAge:   900,
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-	}
-	http.SetCookie(w, accessCookie)
+	SetCookie(w, "access_token", accessToken, config.Config.Server.Domain, 900, true, true, http.SameSiteLaxMode)
 
 	refreshToken, err = GenerateJWT(config.Config.Server.BaseURL, strconv.Itoa(userID), 1440)
 	if err != nil {
 		return "", "", err
 	}
-
-	refreshCookie := &http.Cookie{
-		Name:     "refresh_token",
-		Value:    refreshToken,
-		Path:     "/",
-		Domain:   config.Config.Server.Domain,
-		MaxAge:   86400,
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-	}
-	http.SetCookie(w, refreshCookie)
+	SetCookie(w, "refresh_token", refreshToken, config.Config.Server.Domain, 86400, true, true, http.SameSiteLaxMode)
 
 	return accessToken, refreshToken, nil
 }
 
 func DeleteAuthCookies(w http.ResponseWriter) error {
-	accessCookie := &http.Cookie{
-		Name:     "access_token",
-		Value:    "",
-		Path:     "/",
-		Domain:   config.Config.Server.Domain,
-		MaxAge:   -1,
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-	}
-	http.SetCookie(w, accessCookie)
-
-	refreshCookie := &http.Cookie{
-		Name:     "refresh_token",
-		Value:    "",
-		Path:     "/",
-		Domain:   config.Config.Server.Domain,
-		MaxAge:   -1,
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-	}
-	http.SetCookie(w, refreshCookie)
+	SetCookie(w, "access_token", "", config.Config.Server.Domain, -1, true, true, http.SameSiteLaxMode)
+	SetCookie(w, "refresh_token", "", config.Config.Server.Domain, -1, true, true, http.SameSiteLaxMode)
 
 	return nil
 }
