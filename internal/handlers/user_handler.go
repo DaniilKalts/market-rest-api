@@ -81,7 +81,7 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 }
 
 func (h *UserHandler) UpdateUser(c *gin.Context) {
-	user, err := ginhelpers.GetContextValue[*models.User](c, "user")
+	user, err := ginhelpers.GetContextValue[*models.User](c, "model")
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

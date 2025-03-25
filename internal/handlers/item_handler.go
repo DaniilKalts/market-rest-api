@@ -36,7 +36,7 @@ func (h *ItemHandler) CreateItem(c *gin.Context) {
 		return
 	}
 
-	item, err := ginhelpers.GetContextValue[*models.Item](c, "item")
+	item, err := ginhelpers.GetContextValue[*models.Item](c, "model")
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -98,7 +98,7 @@ func (h *ItemHandler) UpdateItem(c *gin.Context) {
 		return
 	}
 
-	item, err := ginhelpers.GetContextValue[*models.Item](c, "item")
+	item, err := ginhelpers.GetContextValue[*models.Item](c, "model")
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
