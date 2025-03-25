@@ -21,14 +21,14 @@ func SetCookie(w http.ResponseWriter, name, value, domain string, maxAge int, se
 	http.SetCookie(w, cookie)
 }
 
-func SetAuthCookies(w http.ResponseWriter, userID int) (accessToken, refreshToken string, err error) {
-	accessToken, err = GenerateJWT(config.Config.Server.BaseURL, strconv.Itoa(userID), 15)
+func SetAuthCookies(w http.ResponseWriter, userID int, role string) (accessToken, refreshToken string, err error) {
+	accessToken, err = GenerateJWT(strconv.Itoa(userID), 15, role)
 	if err != nil {
 		return "", "", err
 	}
 	SetCookie(w, "access_token", accessToken, config.Config.Server.Domain, 900, true, true, http.SameSiteLaxMode)
 
-	refreshToken, err = GenerateJWT(config.Config.Server.BaseURL, strconv.Itoa(userID), 1440)
+	refreshToken, err = GenerateJWT(strconv.Itoa(userID), 1440, role)
 	if err != nil {
 		return "", "", err
 	}

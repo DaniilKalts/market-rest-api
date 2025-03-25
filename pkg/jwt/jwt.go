@@ -10,15 +10,9 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type Role string
-
-const (
-	User Role = "user"
-)
-
 type Claims struct {
 	jwt.RegisteredClaims
-	Role Role
+	Role string
 }
 
 func generateTokenID() (string, error) {
@@ -30,11 +24,9 @@ func generateTokenID() (string, error) {
 	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
-func GenerateJWT(issuer string, subject string, minutes uint) (string, error) {
+func GenerateJWT(subject string, minutes uint, role string) (string, error) {
 	secret := config.Config.Server.Secret
-	if secret == "" {
-		return "", errors.New("SECRET is not set in the environment")
-	}
+	issuer := config.Config.Server.BaseURL
 
 	tokenID, err := generateTokenID()
 	if err != nil {
@@ -50,10 +42,11 @@ func GenerateJWT(issuer string, subject string, minutes uint) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(issuedAt.Add(time.Duration(minutes) * time.Minute)),
 			ID:        tokenID,
 		},
-		Role: User,
+		Role: role,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", err

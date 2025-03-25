@@ -49,7 +49,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := jwt.SetAuthCookies(c.Writer, user.ID)
+	accessToken, refreshToken, err := jwt.SetAuthCookies(c.Writer, user.ID, "user")
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -83,7 +83,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := jwt.SetAuthCookies(c.Writer, user.ID)
+	accessToken, refreshToken, err := jwt.SetAuthCookies(c.Writer, user.ID, string(user.Role))
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -168,7 +168,7 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := jwt.SetAuthCookies(c.Writer, userID)
+	accessToken, refreshToken, err := jwt.SetAuthCookies(c.Writer, userID, claims.Role)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
