@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -9,6 +8,7 @@ import (
 
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
+	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 	"github.com/DaniilKalts/market-rest-api/pkg/redis"
 )
@@ -23,17 +23,8 @@ func NewAuthHandler(authService services.AuthService, tokenStore *redis.TokenSto
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
-	reqInterface, exists := c.Get("model")
-	if !exists {
-		err := errors.New("request payload not found")
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	req, ok := reqInterface.(*models.RegisterUser)
-	if !ok {
-		err := errors.New("invalid user payload")
+	req, err := ginhelpers.GetContextValue[*models.RegisterUser](c, "model")
+	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -78,17 +69,8 @@ func (h *AuthHandler) Register(c *gin.Context) {
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
-	reqInterface, exists := c.Get("model")
-	if !exists {
-		err := errors.New("invalid user payload")
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	req, ok := reqInterface.(*models.LoginUser)
-	if !ok {
-		err := errors.New("invalid user payload")
+	req, err := ginhelpers.GetContextValue[*models.LoginUser](c, "model")
+	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

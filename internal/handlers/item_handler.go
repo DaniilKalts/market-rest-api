@@ -9,6 +9,7 @@ import (
 
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
+	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 )
 
@@ -21,19 +22,10 @@ func NewItemHandler(service services.ItemService) *ItemHandler {
 }
 
 func (h *ItemHandler) CreateItem(c *gin.Context) {
-	claimsInterface, exists := c.Get("claims")
-	if !exists {
-		err := errors.New("token claims not found")
+	claims, err := ginhelpers.GetContextValue[*jwt.Claims](c, "claims")
+	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	claims, ok := claimsInterface.(*jwt.Claims)
-	if !ok {
-		err := errors.New("failed to parse token claims")
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -44,17 +36,8 @@ func (h *ItemHandler) CreateItem(c *gin.Context) {
 		return
 	}
 
-	itemInterface, exists := c.Get("model")
-	if !exists {
-		err := errors.New("request payload not found")
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	item, ok := itemInterface.(*models.Item)
-	if !ok {
-		err := errors.New("invalid item payload")
+	item, err := ginhelpers.GetContextValue[*models.Item](c, "item")
+	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -101,19 +84,10 @@ func (h *ItemHandler) GetAllItems(c *gin.Context) {
 }
 
 func (h *ItemHandler) UpdateItem(c *gin.Context) {
-	claimsInterface, exists := c.Get("claims")
-	if !exists {
-		err := errors.New("token claims not found")
+	claims, err := ginhelpers.GetContextValue[*jwt.Claims](c, "claims")
+	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	claims, ok := claimsInterface.(*jwt.Claims)
-	if !ok {
-		err := errors.New("failed to parse token claims")
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -124,17 +98,8 @@ func (h *ItemHandler) UpdateItem(c *gin.Context) {
 		return
 	}
 
-	itemInterface, exists := c.Get("model")
-	if !exists {
-		err := errors.New("request payload not found")
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-
-	item, ok := itemInterface.(*models.Item)
-	if !ok {
-		err := errors.New("invalid item payload")
+	item, err := ginhelpers.GetContextValue[*models.Item](c, "item")
+	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -150,19 +115,10 @@ func (h *ItemHandler) UpdateItem(c *gin.Context) {
 }
 
 func (h *ItemHandler) DeleteItem(c *gin.Context) {
-	claimsInterface, exists := c.Get("claims")
-	if !exists {
-		err := errors.New("token claims not found")
+	claims, err := ginhelpers.GetContextValue[*jwt.Claims](c, "claims")
+	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	claims, ok := claimsInterface.(*jwt.Claims)
-	if !ok {
-		err := errors.New("failed to parse token claims")
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

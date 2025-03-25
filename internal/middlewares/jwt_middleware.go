@@ -15,7 +15,7 @@ func JWTMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if !strings.HasPrefix(authHeader, "Bearer ") {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header missing or invalid token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization header missing or invalid token"})
 			c.Abort()
 			return
 		}

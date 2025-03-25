@@ -9,6 +9,7 @@ import (
 
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
+	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 )
 
@@ -21,19 +22,10 @@ func NewUserHandler(service services.UserService) *UserHandler {
 }
 
 func (h *UserHandler) GetUserByID(c *gin.Context) {
-	claimsInterface, exists := c.Get("claims")
-	if !exists {
-		err := errors.New("token claims not found")
+	claims, err := ginhelpers.GetContextValue[*jwt.Claims](c, "claims")
+	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	claims, ok := claimsInterface.(*jwt.Claims)
-	if !ok {
-		err := errors.New("failed to parse token claims")
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -64,19 +56,10 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 }
 
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
-	claimsInterface, exists := c.Get("claims")
-	if !exists {
-		err := errors.New("token claims not found")
+	claims, err := ginhelpers.GetContextValue[*jwt.Claims](c, "claims")
+	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	claims, ok := claimsInterface.(*jwt.Claims)
-	if !ok {
-		err := errors.New("failed to parse token claims")
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -98,17 +81,8 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 }
 
 func (h *UserHandler) UpdateUser(c *gin.Context) {
-	userInterface, exists := c.Get("model")
-	if !exists {
-		err := errors.New("request payload not found")
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-
-	user, ok := userInterface.(*models.User)
-	if !ok {
-		err := errors.New("invalid user payload")
+	user, err := ginhelpers.GetContextValue[*models.User](c, "user")
+	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
