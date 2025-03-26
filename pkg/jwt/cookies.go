@@ -2,7 +2,6 @@ package jwt
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/DaniilKalts/market-rest-api/internal/config"
 )
@@ -21,20 +20,11 @@ func SetCookie(w http.ResponseWriter, name, value, domain string, maxAge int, se
 	http.SetCookie(w, cookie)
 }
 
-func SetAuthCookies(w http.ResponseWriter, userID int, role string) (accessToken, refreshToken string, err error) {
-	accessToken, err = GenerateJWT(strconv.Itoa(userID), 15, role)
-	if err != nil {
-		return "", "", err
-	}
+func SetAuthCookies(w http.ResponseWriter, accessToken, refreshToken string) error {
 	SetCookie(w, "access_token", accessToken, config.Config.Server.Domain, 900, true, true, http.SameSiteLaxMode)
-
-	refreshToken, err = GenerateJWT(strconv.Itoa(userID), 1440, role)
-	if err != nil {
-		return "", "", err
-	}
 	SetCookie(w, "refresh_token", refreshToken, config.Config.Server.Domain, 86400, true, true, http.SameSiteLaxMode)
 
-	return accessToken, refreshToken, nil
+	return nil
 }
 
 func DeleteAuthCookies(w http.ResponseWriter) error {

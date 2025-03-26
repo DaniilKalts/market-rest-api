@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -14,12 +13,11 @@ import (
 )
 
 type AuthHandler struct {
-	service    services.AuthService
-	tokenStore *redis.TokenStore
+	service services.AuthService
 }
 
 func NewAuthHandler(authService services.AuthService, tokenStore *redis.TokenStore) *AuthHandler {
-	return &AuthHandler{service: authService, tokenStore: tokenStore}
+	return &AuthHandler{service: authService}
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
@@ -36,27 +34,14 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	user := models.User{
-		Email:     req.Email,
-		Password:  req.Password,
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-	}
-
-	if err := h.service.RegisterUser(&user); err != nil {
+	accessToken, refreshToken, err := h.service.RegisterAndAuthenticateUser(req)
+	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	accessToken, refreshToken, err := jwt.SetAuthCookies(c.Writer, user.ID, "user")
-	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.tokenStore.SaveJWTokens(user.ID, accessToken, refreshToken); err != nil {
+	if err := jwt.SetAuthCookies(c.Writer, accessToken, refreshToken); err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -76,21 +61,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := h.service.AuthenticateUser(req.Email, req.Password)
+	accessToken, refreshToken, err := h.service.AuthenticateUser(req.Email, req.Password)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	accessToken, refreshToken, err := jwt.SetAuthCookies(c.Writer, user.ID, string(user.Role))
-	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.tokenStore.SaveJWTokens(user.ID, accessToken, refreshToken); err != nil {
+	if err := jwt.SetAuthCookies(c.Writer, accessToken, refreshToken); err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -117,27 +95,13 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 		return
 	}
 
-	accessTokenClaims, err := jwt.ParseJWT(accessToken)
-	if err != nil {
+	if err := h.service.LogoutUser(accessToken, refreshToken); err != nil {
 		c.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	userID, convErr := strconv.Atoi(accessTokenClaims.Subject)
-	if convErr != nil {
-		c.Error(convErr)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": convErr.Error()})
-		return
-	}
-
 	if err := jwt.DeleteAuthCookies(c.Writer); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.tokenStore.DeleteJWTokens(userID, accessToken, refreshToken); err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -154,28 +118,14 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	claims, err := jwt.ParseJWT(refreshToken)
+	accessToken, refreshToken, err := h.service.RefreshToken(refreshToken)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	userID, convErr := strconv.Atoi(claims.Subject)
-	if convErr != nil {
-		c.Error(convErr)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": convErr.Error()})
-		return
-	}
-
-	accessToken, refreshToken, err := jwt.SetAuthCookies(c.Writer, userID, claims.Role)
-	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := h.tokenStore.SaveJWTokens(userID, accessToken, refreshToken); err != nil {
+	if err := jwt.SetAuthCookies(c.Writer, accessToken, refreshToken); err != nil {
 		c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

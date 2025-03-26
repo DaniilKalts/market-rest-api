@@ -13,7 +13,7 @@ func SetupServer() *http.Server {
 	tokenStore := initRedis()
 
 	itemRepository, userRepository := initRepositories(db)
-	itemService, userService, authService := initServices(itemRepository, userRepository)
+	itemService, userService, authService := initServices(itemRepository, userRepository, tokenStore)
 	itemHandler, userHandler, authHandler := initHandlers(
 		itemService,
 		userService,
