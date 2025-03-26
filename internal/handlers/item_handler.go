@@ -21,127 +21,127 @@ func NewItemHandler(service services.ItemService) *ItemHandler {
 	return &ItemHandler{service: service}
 }
 
-func (h *ItemHandler) CreateItem(c *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](c, "claims")
+func (h *ItemHandler) CreateItem(ctx *gin.Context) {
+	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if claims.Role != "admin" {
 		err := errors.New("admin access only")
-		c.Error(err)
-		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
 
-	item, err := ginhelpers.GetContextValue[*models.Item](c, "model")
+	item, err := ginhelpers.GetContextValue[*models.Item](ctx, "model")
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := h.service.CreateItem(item); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, item)
+	ctx.JSON(http.StatusCreated, item)
 }
 
-func (h *ItemHandler) GetItemByID(c *gin.Context) {
-	idStr := c.Param("id")
+func (h *ItemHandler) GetItemByID(ctx *gin.Context) {
+	idStr := ctx.Param("id")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	item, err := h.service.GetItemByID(id)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, item)
+	ctx.JSON(http.StatusOK, item)
 }
 
-func (h *ItemHandler) GetAllItems(c *gin.Context) {
+func (h *ItemHandler) GetAllItems(ctx *gin.Context) {
 	items, err := h.service.GetAllItems()
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, items)
+	ctx.JSON(http.StatusOK, items)
 }
 
-func (h *ItemHandler) UpdateItem(c *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](c, "claims")
+func (h *ItemHandler) UpdateItem(ctx *gin.Context) {
+	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if claims.Role != "admin" {
 		err := errors.New("admin access only")
-		c.Error(err)
-		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
 
-	item, err := ginhelpers.GetContextValue[*models.Item](c, "model")
+	item, err := ginhelpers.GetContextValue[*models.Item](ctx, "model")
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := h.service.UpdateItem(item); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, item)
+	ctx.JSON(http.StatusOK, item)
 }
 
-func (h *ItemHandler) DeleteItem(c *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](c, "claims")
+func (h *ItemHandler) DeleteItem(ctx *gin.Context) {
+	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if claims.Role != "admin" {
 		err := errors.New("admin access only")
-		c.Error(err)
-		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
 
-	idStr := c.Param("id")
+	idStr := ctx.Param("id")
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	if err := h.service.DeleteItem(id); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "item deleted successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "item deleted successfully"})
 }

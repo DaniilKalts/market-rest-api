@@ -8,14 +8,14 @@ import (
 )
 
 func BindBodyMiddleware(model interface{}) gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ctx *gin.Context) {
 		input := reflect.New(reflect.TypeOf(model).Elem()).Interface()
-		if err := c.ShouldBind(input); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			c.Abort()
+		if err := ctx.ShouldBind(input); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			ctx.Abort()
 			return
 		}
-		c.Set("model", input)
-		c.Next()
+		ctx.Set("model", input)
+		ctx.Next()
 	}
 }

@@ -12,11 +12,11 @@ import (
 )
 
 func JWTMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
+	return func(ctx *gin.Context) {
+		authHeader := ctx.GetHeader("Authorization")
 		if !strings.HasPrefix(authHeader, "Bearer ") {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization header missing or invalid token"})
-			c.Abort()
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "authorization header missing or invalid token"})
+			ctx.Abort()
 			return
 		}
 
@@ -24,48 +24,48 @@ func JWTMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
 
 		claims, err := jwt.ParseJWT(tokenString)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err})
-			c.Abort()
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err})
+			ctx.Abort()
 			return
 		}
 
-		c.Set("claims", claims)
-		c.Set("tokenString", tokenString)
-		c.Next()
+		ctx.Set("claims", claims)
+		ctx.Set("tokenString", tokenString)
+		ctx.Next()
 	}
 }
 
 func TokenStoreMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		claims, exists := c.Get("claims")
+	return func(ctx *gin.Context) {
+		claims, exists := ctx.Get("claims")
 		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "claims not found"})
-			c.Abort()
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "claims not found"})
+			ctx.Abort()
 			return
 		}
 
-		tokenString, exists := c.Get("tokenString")
+		tokenString, exists := ctx.Get("tokenString")
 		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "token not found"})
-			c.Abort()
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "token not found"})
+			ctx.Abort()
 			return
 		}
 
 		userID, convErr := strconv.Atoi(claims.(*jwt.Claims).Subject)
 		if convErr != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user id in token"})
-			c.Abort()
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user id in token"})
+			ctx.Abort()
 			return
 		}
 
 		valid, err := tokenStore.ValidateJWToken(userID, tokenString.(string))
 		if err != nil || !valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized or invalid token"})
-			c.Abort()
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized or invalid token"})
+			ctx.Abort()
 			return
 		}
 
-		c.Set("claims", claims)
-		c.Next()
+		ctx.Set("claims", claims)
+		ctx.Next()
 	}
 }

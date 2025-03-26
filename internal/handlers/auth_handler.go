@@ -20,118 +20,118 @@ func NewAuthHandler(authService services.AuthService, tokenStore *redis.TokenSto
 	return &AuthHandler{service: authService}
 }
 
-func (h *AuthHandler) Register(c *gin.Context) {
-	req, err := ginhelpers.GetContextValue[*models.RegisterUser](c, "model")
+func (h *AuthHandler) Register(ctx *gin.Context) {
+	req, err := ginhelpers.GetContextValue[*models.RegisterUser](ctx, "model")
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := req.Validate(); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	accessToken, refreshToken, err := h.service.RegisterAndAuthenticateUser(req)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := jwt.SetAuthCookies(c.Writer, accessToken, refreshToken); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if err := jwt.SetAuthCookies(ctx.Writer, accessToken, refreshToken); err != nil {
+		ctx.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
+	ctx.JSON(http.StatusCreated, gin.H{
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
 }
 
-func (h *AuthHandler) Login(c *gin.Context) {
-	req, err := ginhelpers.GetContextValue[*models.LoginUser](c, "model")
+func (h *AuthHandler) Login(ctx *gin.Context) {
+	req, err := ginhelpers.GetContextValue[*models.LoginUser](ctx, "model")
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	accessToken, refreshToken, err := h.service.AuthenticateUser(req.Email, req.Password)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := jwt.SetAuthCookies(c.Writer, accessToken, refreshToken); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if err := jwt.SetAuthCookies(ctx.Writer, accessToken, refreshToken); err != nil {
+		ctx.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
+	ctx.JSON(http.StatusCreated, gin.H{
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
 }
 
-func (h *AuthHandler) Logout(c *gin.Context) {
-	accessToken, err := c.Cookie("access_token")
+func (h *AuthHandler) Logout(ctx *gin.Context) {
+	accessToken, err := ctx.Cookie("access_token")
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	refreshToken, err := c.Cookie("refresh_token")
+	refreshToken, err := ctx.Cookie("refresh_token")
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := h.service.LogoutUser(accessToken, refreshToken); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := jwt.DeleteAuthCookies(c.Writer); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if err := jwt.DeleteAuthCookies(ctx.Writer); err != nil {
+		ctx.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "logout successfull"})
+	ctx.JSON(http.StatusCreated, gin.H{"message": "logout successfull"})
 }
 
-func (h *AuthHandler) RefreshToken(c *gin.Context) {
-	refreshToken, err := c.Cookie("refresh_token")
+func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
+	refreshToken, err := ctx.Cookie("refresh_token")
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	accessToken, refreshToken, err := h.service.RefreshToken(refreshToken)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		ctx.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := jwt.SetAuthCookies(c.Writer, accessToken, refreshToken); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if err := jwt.SetAuthCookies(ctx.Writer, accessToken, refreshToken); err != nil {
+		ctx.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
+	ctx.JSON(http.StatusCreated, gin.H{
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})

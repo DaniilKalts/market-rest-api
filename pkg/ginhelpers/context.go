@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetContextValue[T any](c *gin.Context, key string) (T, error) {
-	value, exists := c.Get(key)
+func GetContextValue[T any](ctx *gin.Context, key string) (T, error) {
+	value, exists := ctx.Get(key)
 
 	var typedValue T
 	if !exists {
