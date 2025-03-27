@@ -113,6 +113,10 @@ func (r *authService) RefreshToken(refreshToken string) (string, string, error) 
 		return "", "", convErr
 	}
 
+	if err := r.tokenStore.DeleteJWToken(userID, refreshToken); err != nil {
+		return "", "", err
+	}
+
 	accessToken, refreshToken, err := r.generateAndSaveTokens(userID, claims.Role)
 	if err != nil {
 		return "", "", err
