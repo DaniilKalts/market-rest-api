@@ -21,7 +21,7 @@ func NewUserHandler(service services.UserService) *UserHandler {
 	return &UserHandler{service: service}
 }
 
-func (h *UserHandler) GetUserByID(ctx *gin.Context) {
+func (h *UserHandler) HandleGetUserByID(ctx *gin.Context) {
 	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
 	if err != nil {
 		ctx.Error(err)
@@ -55,7 +55,7 @@ func (h *UserHandler) GetUserByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
-func (h *UserHandler) GetAllUsers(ctx *gin.Context) {
+func (h *UserHandler) HandleGetAllUsers(ctx *gin.Context) {
 	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
 	if err != nil {
 		ctx.Error(err)
@@ -80,7 +80,7 @@ func (h *UserHandler) GetAllUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
-func (h *UserHandler) UpdateUser(ctx *gin.Context) {
+func (h *UserHandler) HandleUpdateUser(ctx *gin.Context) {
 	user, err := ginhelpers.GetContextValue[*models.User](ctx, "model")
 	if err != nil {
 		ctx.Error(err)
@@ -97,7 +97,7 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
-func (h *UserHandler) DeleteUser(ctx *gin.Context) {
+func (h *UserHandler) HandleDeleteUser(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 
 	id, err := strconv.Atoi(idStr)

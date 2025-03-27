@@ -21,7 +21,7 @@ func NewItemHandler(service services.ItemService) *ItemHandler {
 	return &ItemHandler{service: service}
 }
 
-func (h *ItemHandler) CreateItem(ctx *gin.Context) {
+func (h *ItemHandler) HandleCreateItem(ctx *gin.Context) {
 	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
 	if err != nil {
 		ctx.Error(err)
@@ -52,7 +52,7 @@ func (h *ItemHandler) CreateItem(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, item)
 }
 
-func (h *ItemHandler) GetItemByID(ctx *gin.Context) {
+func (h *ItemHandler) HandleGetItemByID(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 
 	id, err := strconv.Atoi(idStr)
@@ -72,7 +72,7 @@ func (h *ItemHandler) GetItemByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, item)
 }
 
-func (h *ItemHandler) GetAllItems(ctx *gin.Context) {
+func (h *ItemHandler) HandleGetAllItems(ctx *gin.Context) {
 	items, err := h.service.GetAllItems()
 	if err != nil {
 		ctx.Error(err)
@@ -83,7 +83,7 @@ func (h *ItemHandler) GetAllItems(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, items)
 }
 
-func (h *ItemHandler) UpdateItem(ctx *gin.Context) {
+func (h *ItemHandler) HandleUpdateItem(ctx *gin.Context) {
 	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
 	if err != nil {
 		ctx.Error(err)
@@ -114,7 +114,7 @@ func (h *ItemHandler) UpdateItem(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, item)
 }
 
-func (h *ItemHandler) DeleteItem(ctx *gin.Context) {
+func (h *ItemHandler) HandleDeleteItem(ctx *gin.Context) {
 	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
 	if err != nil {
 		ctx.Error(err)

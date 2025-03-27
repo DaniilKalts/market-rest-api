@@ -8,6 +8,10 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 )
 
+var (
+	ErrUserNotFound = errors.New("user not found")
+)
+
 type UserRepository interface {
 	Create(user *models.User) error
 	GetByID(id int) (*models.User, error)
@@ -34,6 +38,9 @@ func (r *userRepository) GetByID(id int) (*models.User, error) {
 
 	err := r.db.First(&user, id).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
 		return nil, err
 	}
 
@@ -46,7 +53,7 @@ func (r *userRepository) GetByEmail(email string) (*models.User, error) {
 	err := r.db.Where("email = ?", email).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, ErrUserNotFound
 		}
 		return nil, err
 	}
@@ -57,12 +64,11 @@ func (r *userRepository) GetByEmail(email string) (*models.User, error) {
 func (r *userRepository) GetAll() ([]models.User, error) {
 	var users []models.User
 
-	err := r.db.Find(&users).Error
-	if err != nil {
+	if err := r.db.Find(&users).Error; err != nil {
 		return nil, err
 	}
 
-	return users, err
+	return users, nil
 }
 
 func (r *userRepository) Update(user *models.User) error {
@@ -76,7 +82,7 @@ func (r *userRepository) Delete(id int) error {
 		return res.Error
 	}
 	if res.RowsAffected == 0 {
-		return errors.New("user not found")
+		return ErrUserNotFound
 	}
 
 	return nil

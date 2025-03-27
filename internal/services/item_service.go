@@ -42,7 +42,7 @@ func (s *itemService) UpdateItem(item *models.Item) error {
 		return err
 	}
 	if existingItem == nil {
-		return errors.New("Item not found")
+		return errors.New("item not found")
 	}
 
 	return s.repo.Update(item)

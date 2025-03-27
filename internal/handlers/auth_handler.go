@@ -20,7 +20,7 @@ func NewAuthHandler(authService services.AuthService, tokenStore *redis.TokenSto
 	return &AuthHandler{service: authService}
 }
 
-func (h *AuthHandler) Register(ctx *gin.Context) {
+func (h *AuthHandler) HandleRegister(ctx *gin.Context) {
 	req, err := ginhelpers.GetContextValue[*models.RegisterUser](ctx, "model")
 	if err != nil {
 		ctx.Error(err)
@@ -34,10 +34,14 @@ func (h *AuthHandler) Register(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := h.service.RegisterAndAuthenticateUser(req)
+	accessToken, refreshToken, err := h.service.RegisterUser(req)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if err.Error() == "user already exists" {
+			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		} else {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		}
 		return
 	}
 
@@ -53,7 +57,7 @@ func (h *AuthHandler) Register(ctx *gin.Context) {
 	})
 }
 
-func (h *AuthHandler) Login(ctx *gin.Context) {
+func (h *AuthHandler) HandleLogin(ctx *gin.Context) {
 	req, err := ginhelpers.GetContextValue[*models.LoginUser](ctx, "model")
 	if err != nil {
 		ctx.Error(err)
@@ -61,7 +65,7 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := h.service.AuthenticateUser(req.Email, req.Password)
+	accessToken, refreshToken, err := h.service.LoginUser(req.Email, req.Password)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
@@ -74,13 +78,13 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{
+	ctx.JSON(http.StatusOK, gin.H{
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
 }
 
-func (h *AuthHandler) Logout(ctx *gin.Context) {
+func (h *AuthHandler) HandleLogout(ctx *gin.Context) {
 	accessToken, err := ctx.Cookie("access_token")
 	if err != nil {
 		ctx.Error(err)
@@ -107,10 +111,10 @@ func (h *AuthHandler) Logout(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"message": "logout successfull"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "logout successfull"})
 }
 
-func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
+func (h *AuthHandler) HandleRefreshToken(ctx *gin.Context) {
 	refreshToken, err := ctx.Cookie("refresh_token")
 	if err != nil {
 		ctx.Error(err)
@@ -118,7 +122,7 @@ func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := h.service.RefreshToken(refreshToken)
+	accessToken, refreshToken, err := h.service.RefreshTokens(refreshToken)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})

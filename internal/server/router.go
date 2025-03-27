@@ -20,33 +20,33 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 
 	itemPublicRoutes := router.Group("/items")
 	{
-		itemPublicRoutes.GET("/:id", itemHandler.GetItemByID)
-		itemPublicRoutes.GET("", itemHandler.GetAllItems)
+		itemPublicRoutes.GET("/:id", itemHandler.HandleGetItemByID)
+		itemPublicRoutes.GET("", itemHandler.HandleGetAllItems)
 	}
 
 	itemPrivateRoutes := router.Group("/items")
 	itemPrivateRoutes.Use(middlewares.JWTMiddleware(tokenStore), middlewares.TokenStoreMiddleware(tokenStore))
 	{
-		itemPrivateRoutes.POST("", middlewares.BindBodyMiddleware(&models.Item{}), itemHandler.CreateItem)
-		itemPrivateRoutes.PUT("/:id", middlewares.BindBodyMiddleware(&models.Item{}), itemHandler.UpdateItem)
-		itemPrivateRoutes.DELETE("/:id", itemHandler.DeleteItem)
+		itemPrivateRoutes.POST("", middlewares.BindBodyMiddleware(&models.Item{}), itemHandler.HandleCreateItem)
+		itemPrivateRoutes.PUT("/:id", middlewares.BindBodyMiddleware(&models.Item{}), itemHandler.HandleUpdateItem)
+		itemPrivateRoutes.DELETE("/:id", itemHandler.HandleDeleteItem)
 	}
 
 	userRoutes := router.Group("/users")
 	userRoutes.Use(middlewares.JWTMiddleware(tokenStore), middlewares.TokenStoreMiddleware(tokenStore))
 	{
-		userRoutes.GET("/:id", userHandler.GetUserByID)
-		userRoutes.GET("", userHandler.GetAllUsers)
-		userRoutes.PUT("/:id", middlewares.BindBodyMiddleware(&models.User{}), userHandler.UpdateUser)
-		userRoutes.DELETE("/:id", userHandler.DeleteUser)
+		userRoutes.GET("/:id", userHandler.HandleGetUserByID)
+		userRoutes.GET("", userHandler.HandleGetAllUsers)
+		userRoutes.PUT("/:id", middlewares.BindBodyMiddleware(&models.User{}), userHandler.HandleUpdateUser)
+		userRoutes.DELETE("/:id", userHandler.HandleDeleteUser)
 	}
 
 	authRoutes := router.Group("/auth")
 	{
-		authRoutes.POST("/register", middlewares.BindBodyMiddleware(&models.RegisterUser{}), authHandler.Register)
-		authRoutes.POST("/login", middlewares.BindBodyMiddleware(&models.LoginUser{}), authHandler.Login)
-		authRoutes.POST("/logout", middlewares.BindBodyMiddleware(tokenStore), authHandler.Logout)
-		authRoutes.POST("/refresh", authHandler.RefreshToken)
+		authRoutes.POST("/register", middlewares.BindBodyMiddleware(&models.RegisterUser{}), authHandler.HandleRegister)
+		authRoutes.POST("/login", middlewares.BindBodyMiddleware(&models.LoginUser{}), authHandler.HandleLogin)
+		authRoutes.POST("/logout", middlewares.BindBodyMiddleware(tokenStore), authHandler.HandleLogout)
+		authRoutes.POST("/refresh", authHandler.HandleRefreshToken)
 	}
 
 	router.Static("/docs", "./docs")

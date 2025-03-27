@@ -10,11 +10,28 @@ import (
 	"github.com/DaniilKalts/market-rest-api/pkg/redis"
 )
 
+var (
+	// User related errors
+	ErrUserAlreadyExists      = errors.New("user already exists")
+	ErrUserNotFound           = errors.New("user not found")
+	ErrUserCreationFailed     = errors.New("failed to create user")
+	ErrUserVerificationFailed = errors.New("failed to verify user")
+	ErrInvalidCredentials     = errors.New("invalid credentials")
+
+	// Token related errors
+	ErrTokenGeneration     = errors.New("failed to generate token")
+	ErrTokenStorage        = errors.New("failed to store token")
+	ErrTokenParsingFailed  = errors.New("failed to validate token")
+	ErrInvalidTokenSubject = errors.New("invalid token subject")
+	ErrTokenDeletionFailed = errors.New("failed to delete token")
+	ErrTokenSaveFailed     = errors.New("failed to save token")
+)
+
 type AuthService interface {
-	RegisterAndAuthenticateUser(user *models.RegisterUser) (string, string, error)
-	AuthenticateUser(email string, password string) (string, string, error)
+	RegisterUser(user *models.RegisterUser) (string, string, error)
+	LoginUser(email string, password string) (string, string, error)
 	LogoutUser(accessToken string, refreshToken string) error
-	RefreshToken(refreshToken string) (string, string, error)
+	RefreshTokens(refreshToken string) (string, string, error)
 }
 
 type authService struct {
@@ -26,31 +43,31 @@ func NewAuthService(repo repositories.UserRepository, tokenStore *redis.TokenSto
 	return &authService{repo: repo, tokenStore: tokenStore}
 }
 
-func (r *authService) generateAndSaveTokens(userID int, role string) (string, string, error) {
+func (r *authService) generateAndStoreTokens(userID int, role string) (string, string, error) {
 	accessToken, err := jwt.GenerateJWT(strconv.Itoa(userID), 15, role)
 	if err != nil {
-		return "", "", err
+		return "", "", ErrTokenGeneration
 	}
 
 	refreshToken, err := jwt.GenerateJWT(strconv.Itoa(userID), 1440, role)
 	if err != nil {
-		return "", "", err
+		return "", "", ErrTokenGeneration
 	}
 
 	if err := r.tokenStore.SaveJWTokens(userID, accessToken, refreshToken); err != nil {
-		return "", "", err
+		return "", "", ErrTokenStorage
 	}
 
 	return accessToken, refreshToken, nil
 }
 
-func (r *authService) RegisterAndAuthenticateUser(req *models.RegisterUser) (string, string, error) {
+func (r *authService) RegisterUser(req *models.RegisterUser) (string, string, error) {
 	existingUser, err := r.repo.GetByEmail(req.Email)
 	if err != nil {
-		return "", "", err
+		return "", "", ErrUserNotFound
 	}
 	if existingUser != nil {
-		return "", "", errors.New("user already exists")
+		return "", "", ErrUserAlreadyExists
 	}
 
 	user := &models.User{
@@ -62,68 +79,68 @@ func (r *authService) RegisterAndAuthenticateUser(req *models.RegisterUser) (str
 	}
 
 	if err := r.repo.Create(user); err != nil {
-		return "", "", err
+		return "", "", ErrUserCreationFailed
 	}
 
-	return r.generateAndSaveTokens(user.ID, string(user.Role))
+	return r.generateAndStoreTokens(user.ID, string(user.Role))
 }
 
-func (r *authService) AuthenticateUser(email string, password string) (string, string, error) {
+func (r *authService) LoginUser(email string, password string) (string, string, error) {
 	user, err := r.repo.GetByEmail(email)
 	if err != nil {
-		return "", "", err
+		return "", "", ErrUserVerificationFailed
 	}
 	if user == nil {
-		return "", "", errors.New("user not found")
+		return "", "", ErrUserNotFound
 	}
 
 	if _, err := jwt.CheckPassword(password, user.Password); err != nil {
-		return "", "", err
+		return "", "", ErrInvalidCredentials
 	}
 
-	return r.generateAndSaveTokens(user.ID, string(user.Role))
+	return r.generateAndStoreTokens(user.ID, string(user.Role))
 }
 
 func (r *authService) LogoutUser(accessToken string, refreshToken string) error {
 	claims, err := jwt.ParseJWT(accessToken)
 	if err != nil {
-		return err
+		return ErrTokenParsingFailed
 	}
 
 	userID, convErr := strconv.Atoi(claims.Subject)
 	if convErr != nil {
-		return convErr
+		return ErrInvalidTokenSubject
 	}
 
 	if err := r.tokenStore.DeleteJWTokens(userID, accessToken, refreshToken); err != nil {
-		return err
+		return ErrTokenDeletionFailed
 	}
 
 	return nil
 }
 
-func (r *authService) RefreshToken(refreshToken string) (string, string, error) {
+func (r *authService) RefreshTokens(refreshToken string) (string, string, error) {
 	claims, err := jwt.ParseJWT(refreshToken)
 	if err != nil {
-		return "", "", err
+		return "", "", ErrTokenParsingFailed
 	}
 
 	userID, convErr := strconv.Atoi(claims.Subject)
 	if convErr != nil {
-		return "", "", convErr
+		return "", "", ErrInvalidTokenSubject
 	}
 
 	if err := r.tokenStore.DeleteJWToken(userID, refreshToken); err != nil {
-		return "", "", err
+		return "", "", ErrTokenDeletionFailed
 	}
 
-	accessToken, refreshToken, err := r.generateAndSaveTokens(userID, claims.Role)
+	accessToken, refreshToken, err := r.generateAndStoreTokens(userID, claims.Role)
 	if err != nil {
 		return "", "", err
 	}
 
 	if err := r.tokenStore.SaveJWTokens(userID, accessToken, refreshToken); err != nil {
-		return "", "", err
+		return "", "", ErrTokenSaveFailed
 	}
 
 	return accessToken, refreshToken, nil
