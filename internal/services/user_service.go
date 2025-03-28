@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/repositories"
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
@@ -10,8 +12,8 @@ type UserService interface {
 	GetUserByID(id int) (*models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
 	GetAllUsers() ([]models.User, error)
-	UpdateUser(user *models.User) error
-	DeleteUser(id int) error
+	UpdateUserByID(id int, updateUserDTO *models.UpdateUser) error
+	DeleteUserByID(id int) error
 }
 
 type userService struct {
@@ -34,25 +36,40 @@ func (s *userService) GetAllUsers() ([]models.User, error) {
 	return s.repo.GetAll()
 }
 
-func (s *userService) UpdateUser(user *models.User) error {
-	existingUser, err := s.repo.GetByID(user.ID)
+func (s *userService) UpdateUserByID(userID int, updateUserDTO *models.UpdateUser) error {
+	existingUser, err := s.repo.GetByID(userID)
 	if err != nil {
 		return err
 	}
 
-	if user.Password != "" && user.Password != existingUser.Password {
-		hashedPassword, err := jwt.HashPassword(user.Password)
-		if err != nil {
-			return err
+	if updateUserDTO.FirstName != nil {
+		existingUser.FirstName = *updateUserDTO.FirstName
+	}
+	if updateUserDTO.LastName != nil {
+		existingUser.LastName = *updateUserDTO.LastName
+	}
+	if updateUserDTO.Email != nil {
+		existingUser.Email = *updateUserDTO.Email
+	}
+	if updateUserDTO.PhoneNumber != nil {
+		existingUser.PhoneNumber = *updateUserDTO.PhoneNumber
+	}
+	if updateUserDTO.Password != nil || updateUserDTO.ConfirmPassword != nil {
+		if updateUserDTO.Password == nil || updateUserDTO.ConfirmPassword == nil || *updateUserDTO.Password != *updateUserDTO.ConfirmPassword {
+			return errors.New("passwords do not match")
 		}
-		user.Password = hashedPassword
-	} else {
-		user.Password = existingUser.Password
+		if *updateUserDTO.Password != "" {
+			hashedPassword, err := jwt.HashPassword(*updateUserDTO.Password)
+			if err != nil {
+				return err
+			}
+			existingUser.Password = hashedPassword
+		}
 	}
 
-	return s.repo.Update(user)
+	return s.repo.Update(existingUser)
 }
 
-func (s *userService) DeleteUser(id int) error {
+func (s *userService) DeleteUserByID(id int) error {
 	return s.repo.Delete(id)
 }

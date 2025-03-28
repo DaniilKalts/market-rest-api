@@ -64,7 +64,11 @@ func (r *authService) generateAndStoreTokens(userID int, role string) (string, s
 func (r *authService) RegisterUser(req *models.RegisterUser) (string, string, error) {
 	existingUser, err := r.repo.GetByEmail(req.Email)
 	if err != nil {
-		return "", "", ErrUserNotFound
+		if errors.Is(err, repositories.ErrUserNotFound) {
+			existingUser = nil
+		} else {
+			return "", "", err
+		}
 	}
 	if existingUser != nil {
 		return "", "", ErrUserAlreadyExists
@@ -75,7 +79,7 @@ func (r *authService) RegisterUser(req *models.RegisterUser) (string, string, er
 		Password:  req.Password,
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
-		Role:      "user",
+		Role:      models.RoleUser,
 	}
 
 	if err := r.repo.Create(user); err != nil {

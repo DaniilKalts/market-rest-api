@@ -80,24 +80,67 @@ func (h *UserHandler) HandleGetAllUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
-func (h *UserHandler) HandleUpdateUser(ctx *gin.Context) {
-	user, err := ginhelpers.GetContextValue[*models.User](ctx, "model")
+func (h *UserHandler) HandleUpdateUserByID(ctx *gin.Context) {
+	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := h.service.UpdateUser(user); err != nil {
+	if claims.Role != "admin" {
+		err := errors.New("admin access only")
+		ctx.Error(err)
+		ctx.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := ginhelpers.GetContextValue[*models.UpdateUser](ctx, "model")
+	if err != nil {
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := user.Validate(); err != nil {
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	idStr := ctx.Param("id")
+
+	userID, err := strconv.Atoi(idStr)
+	if err != nil {
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.service.UpdateUserByID(userID, user); err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, user)
+	ctx.JSON(http.StatusOK, gin.H{"message": "user updated successfully"})
 }
 
 func (h *UserHandler) HandleDeleteUser(ctx *gin.Context) {
+	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
+	if err != nil {
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if claims.Role != "admin" {
+		err := errors.New("admin access only")
+		ctx.Error(err)
+		ctx.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
+	}
+
 	idStr := ctx.Param("id")
 
 	id, err := strconv.Atoi(idStr)
@@ -107,7 +150,7 @@ func (h *UserHandler) HandleDeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.service.DeleteUser(id); err != nil {
+	if err := h.service.DeleteUserByID(id); err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return

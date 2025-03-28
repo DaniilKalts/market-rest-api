@@ -37,7 +37,7 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 	{
 		userRoutes.GET("/:id", userHandler.HandleGetUserByID)
 		userRoutes.GET("", userHandler.HandleGetAllUsers)
-		userRoutes.PUT("/:id", middlewares.BindBodyMiddleware(&models.User{}), userHandler.HandleUpdateUser)
+		userRoutes.PUT("/:id", middlewares.BindBodyMiddleware(&models.UpdateUser{}), userHandler.HandleUpdateUserByID)
 		userRoutes.DELETE("/:id", userHandler.HandleDeleteUser)
 	}
 

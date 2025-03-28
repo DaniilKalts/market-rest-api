@@ -50,11 +50,6 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	return
 }
 
-type LoginUser struct {
-	Email    string `json:"email" binding:"required,email" example:"john.doe@example.com"`
-	Password string `json:"password" binding:"required,min=8" example:"12341234"`
-}
-
 type RegisterUser struct {
 	FirstName       string `json:"first_name" binding:"required,min=2,max=30" example:"John"`
 	LastName        string `json:"last_name" binding:"required,min=2,max=30" example:"Doe"`
@@ -69,4 +64,32 @@ func (r *RegisterUser) Validate() error {
 		return errors.New("passwords do not match")
 	}
 	return ValidatePhoneNumber(r.PhoneNumber)
+}
+
+type LoginUser struct {
+	Email    string `json:"email" binding:"required,email" example:"john.doe@example.com"`
+	Password string `json:"password" binding:"required,min=8" example:"12341234"`
+}
+
+type UpdateUser struct {
+	FirstName       *string `json:"first_name" binding:"omitempty,min=2,max=30" example:"John"`
+	LastName        *string `json:"last_name" binding:"omitempty,min=2,max=30" example:"Doe"`
+	Email           *string `json:"email" binding:"omitempty,email" example:"john.doe@example.com"`
+	Password        *string `json:"password" binding:"omitempty,min=8" example:"12341234"`
+	ConfirmPassword *string `json:"confirm_password" binding:"omitempty,min=8" example:"12341234"`
+	PhoneNumber     *string `json:"phone_number" binding:"omitempty" example:"+77051234567"`
+}
+
+func (u *UpdateUser) Validate() error {
+	if u.Password != nil || u.ConfirmPassword != nil {
+		if u.Password == nil || u.ConfirmPassword == nil || *u.Password != *u.ConfirmPassword {
+			return errors.New("passwords do not match")
+		}
+	}
+	if u.PhoneNumber != nil {
+		if err := ValidatePhoneNumber(*u.PhoneNumber); err != nil {
+			return err
+		}
+	}
+	return nil
 }
