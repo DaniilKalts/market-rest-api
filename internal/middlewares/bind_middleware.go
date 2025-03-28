@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"encoding/json"
 	"net/http"
 	"reflect"
 
@@ -10,7 +11,9 @@ import (
 func BindBodyMiddleware(model interface{}) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		input := reflect.New(reflect.TypeOf(model).Elem()).Interface()
-		if err := ctx.ShouldBind(input); err != nil {
+		decoder := json.NewDecoder(ctx.Request.Body)
+		decoder.DisallowUnknownFields()
+		if err := decoder.Decode(input); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			ctx.Abort()
 			return
