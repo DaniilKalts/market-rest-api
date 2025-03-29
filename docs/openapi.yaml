@@ -7,7 +7,7 @@ paths:
   /items:
     post:
       tags:
-        - Items
+        - "📦 Items"
       summary: Create Item
       description: Create a new item. (Admin access only)
       security:
@@ -40,7 +40,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
     get:
       tags:
-        - Items
+        - "📦 Items"
       summary: Get All Items
       description: Retrieve a list of all items.
       responses:
@@ -74,7 +74,7 @@ paths:
           type: integer
     get:
       tags:
-        - Items
+        - "📦 Items"
       summary: Get Item by ID
       description: Retrieve an item by its ID.
       responses:
@@ -98,7 +98,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
     put:
       tags:
-        - Items
+        - "📦 Items"
       summary: Update Item
       description: Update an existing item. (Admin access only)
       security:
@@ -131,7 +131,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
     delete:
       tags:
-        - Items
+        - "📦 Items"
       summary: Delete Item
       description: Delete an item by its ID. (Admin access only)
       security:
@@ -162,7 +162,7 @@ paths:
   /users:
     get:
       tags:
-        - Users
+        - "👤 Users"
       summary: Get All Users
       description: Retrieve a list of all users. (Admin access only)
       security:
@@ -198,7 +198,7 @@ paths:
           type: integer
     get:
       tags:
-        - Users
+        - "👤 Users"
       summary: Get User by ID
       description: Retrieve a user by their ID. (Admin access only)
       security:
@@ -224,7 +224,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
     put:
       tags:
-        - Users
+        - "👤 Users"
       summary: Update User
       description: Update an existing user. (Admin access only)
       security:
@@ -261,7 +261,7 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
     delete:
       tags:
-        - Users
+        - "👤 Users"
       summary: Delete User
       description: Delete a user by their ID. (Admin access only)
       security:
@@ -292,7 +292,7 @@ paths:
   /auth/register:
     post:
       tags:
-        - Authentication
+        - "🔒 Authentication"
       summary: Register User
       description: Register a new user.
       requestBody:
@@ -330,7 +330,7 @@ paths:
   /auth/login:
     post:
       tags:
-        - Authentication
+        - "🔒 Authentication"
       summary: Authenticate User
       description: Authenticate a user using email and password.
       requestBody:
@@ -362,7 +362,7 @@ paths:
   /auth/logout:
     post:
       tags:
-        - Authentication
+        - "🔒 Authentication"
       summary: Logout
       description: Log out the currently authenticated user.
       responses:
@@ -391,7 +391,7 @@ paths:
   /auth/refresh:
     post:
       tags:
-        - Authentication
+        - "🔒 Authentication"
       summary: Refresh Tokens
       description: Refresh access and refresh tokens using the provided refresh token.
       responses:
@@ -409,6 +409,106 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: Unauthorized - Invalid or expired refresh token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /profile:
+    get:
+      tags:
+        - "📝 Profile"
+      summary: Get Profile
+      description: Retrieve the profile of the currently authenticated user.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Profile retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      tags:
+        - "📝 Profile"
+      summary: Update Profile
+      description: Update the profile of the currently authenticated user.
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Updated profile payload.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUser"
+      responses:
+        "200":
+          description: Profile updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "profile updated successfully"
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+        - "📝 Profile"
+      summary: Delete Profile
+      description: Delete the profile of the currently authenticated user.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Profile deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "profile deleted successfully"
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized.
           content:
             application/json:
               schema:
