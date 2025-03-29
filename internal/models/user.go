@@ -29,11 +29,11 @@ func ValidatePhoneNumber(phoneNumber string) error {
 
 type User struct {
 	ID          int       `json:"id" gorm:"primaryKey" example:"1"`
-	FirstName   string    `json:"first_name" gorm:"type:varchar(30);not null" binding:"required,min=2,max=30" example:"John"`
-	LastName    string    `json:"last_name" gorm:"type:varchar(30);not null" binding:"required,min=2,max=30" example:"Doe"`
-	Email       string    `json:"email" gorm:"type:varchar(100);uniqueIndex;not null" binding:"required,email" example:"john.doe@example.com"`
+	FirstName   string    `json:"first_name" gorm:"type:varchar(30);not null" binding:"required,min=2,max=30" example:"Martin"`
+	LastName    string    `json:"last_name" gorm:"type:varchar(30);not null" binding:"required,min=2,max=30" example:"Kalts"`
+	Email       string    `json:"email" gorm:"type:varchar(100);uniqueIndex;not null" binding:"required,email" example:"martin@gmail.com"`
 	Password    string    `json:"password" gorm:"type:varchar(255);not null" binding:"required,min=8" example:"$2a$10$EKq8Yv9Y1WnrDFEdiMYCSOaz/oq2I9l9ngJyH/eBRM3lIbcJRLS02"`
-	PhoneNumber string    `json:"phone_number" gorm:"type:varchar(12);not null" binding:"required" example:"+77051234567"`
+	PhoneNumber string    `json:"phone_number" gorm:"type:varchar(12);not null" binding:"required" example:"+77007473472"`
 	Role        Role      `json:"role" gorm:"type:varchar(10);not null;default:'user'" binding:"required,oneof=admin user" example:"user"`
 	Cart        *Cart     `json:"cart,omitempty" gorm:"foreignKey:UserID"`
 	CreatedAt   time.Time `json:"created_at" gorm:"autoCreateTime" example:"2025-02-25T12:37:32Z"`
@@ -51,12 +51,12 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 type RegisterUser struct {
-	FirstName       string `json:"first_name" binding:"required,min=2,max=30" example:"John"`
-	LastName        string `json:"last_name" binding:"required,min=2,max=30" example:"Doe"`
-	Email           string `json:"email" binding:"required,email" example:"john.doe@example.com"`
+	FirstName       string `json:"first_name" binding:"required,min=2,max=30" example:"Martin"`
+	LastName        string `json:"last_name" binding:"required,min=2,max=30" example:"Kalts"`
+	Email           string `json:"email" binding:"required,email" example:"martin@gmail.com"`
 	Password        string `json:"password" binding:"required,min=8" example:"12341234"`
 	ConfirmPassword string `json:"confirm_password" binding:"required,min=8" example:"12341234"`
-	PhoneNumber     string `json:"phone_number" binding:"required" example:"+77051234567"`
+	PhoneNumber     string `json:"phone_number" binding:"required" example:"+77007473472"`
 }
 
 func (r *RegisterUser) Validate() error {
@@ -67,17 +67,17 @@ func (r *RegisterUser) Validate() error {
 }
 
 type LoginUser struct {
-	Email    string `json:"email" binding:"required,email" example:"john.doe@example.com"`
+	Email    string `json:"email" binding:"required,email" example:"martin@gmail.com"`
 	Password string `json:"password" binding:"required,min=8" example:"12341234"`
 }
 
 type UpdateUser struct {
-	FirstName       *string `json:"first_name" binding:"omitempty,min=2,max=30" example:"John"`
-	LastName        *string `json:"last_name" binding:"omitempty,min=2,max=30" example:"Doe"`
-	Email           *string `json:"email" binding:"omitempty,email" example:"john.doe@example.com"`
+	FirstName       *string `json:"first_name" binding:"omitempty,min=2,max=30" example:"Martin"`
+	LastName        *string `json:"last_name" binding:"omitempty,min=2,max=30" example:"Kalts"`
+	Email           *string `json:"email" binding:"omitempty,email" example:"martin.programmer@gmail.com"`
 	Password        *string `json:"password" binding:"omitempty,min=8" example:"12341234"`
 	ConfirmPassword *string `json:"confirm_password" binding:"omitempty,min=8" example:"12341234"`
-	PhoneNumber     *string `json:"phone_number" binding:"omitempty" example:"+77051234567"`
+	PhoneNumber     *string `json:"phone_number" binding:"omitempty" example:"+77007473472"`
 }
 
 func (u *UpdateUser) Validate() error {
