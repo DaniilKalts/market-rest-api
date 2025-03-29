@@ -3,3 +3,6 @@ market-rest-api
 
 # Ignore environment variables
 .env
+
+# Ignore IntelliJ's project specific settings files
+.idea/
