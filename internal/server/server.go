@@ -14,7 +14,7 @@ func SetupServer() *http.Server {
 
 	itemRepository, userRepository := initRepositories(db)
 	itemService, userService, authService := initServices(itemRepository, userRepository, tokenStore)
-	itemHandler, userHandler, authHandler := initHandlers(
+	itemHandler, userHandler, authHandler, profileHandler := initHandlers(
 		itemService,
 		userService,
 		authService,
@@ -26,7 +26,7 @@ func SetupServer() *http.Server {
 		port = "8080"
 	}
 
-	router := setupRouter(itemHandler, userHandler, authHandler)
+	router := setupRouter(itemHandler, userHandler, authHandler, profileHandler)
 
 	srv := &http.Server{
 		Addr:    ":" + config.Config.Server.Port,

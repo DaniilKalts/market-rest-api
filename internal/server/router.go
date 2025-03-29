@@ -11,7 +11,7 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 )
 
-func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler) *gin.Engine {
+func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHandler, authHandler *handlers.AuthHandler, profileHandler *handlers.ProfileHandler) *gin.Engine {
 	router := gin.Default()
 
 	tokenStore := initRedis()
@@ -47,6 +47,14 @@ func setupRouter(itemHandler *handlers.ItemHandler, userHandler *handlers.UserHa
 		authRoutes.POST("/login", middlewares.BindBodyMiddleware(&models.LoginUser{}), authHandler.HandleLogin)
 		authRoutes.POST("/logout", authHandler.HandleLogout)
 		authRoutes.POST("/refresh", authHandler.HandleRefreshToken)
+	}
+
+	profileRoutes := router.Group("/profile")
+	profileRoutes.Use(middlewares.JWTMiddleware(tokenStore), middlewares.TokenStoreMiddleware(tokenStore))
+	{
+		profileRoutes.GET("", profileHandler.HandleGetProfile)
+		profileRoutes.PUT("", middlewares.BindBodyMiddleware(&models.UpdateUser{}), profileHandler.HandleUpdateProfile)
+		profileRoutes.DELETE("", profileHandler.HandleDeleteProfile)
 	}
 
 	router.Static("/docs", "./docs")
