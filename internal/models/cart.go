@@ -11,8 +11,8 @@ type Cart struct {
 }
 
 type CartItem struct {
-	CartID    int       `json:"cart_id" gorm:"primaryKey;not null" example:"1"`
-	ItemID    int       `json:"item_id" gorm:"primaryKey;not null" example:"1"`
+	CartID    int       `json:"cart_id" gorm:"primaryKey;not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" example:"1"`
+	ItemID    int       `json:"item_id" gorm:"primaryKey;not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" example:"1"`
 	Quantity  uint      `json:"quantity" gorm:"not null" example:"2"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime" example:"2025-02-25T12:37:32Z"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime" example:"2025-02-25T12:37:32Z"`

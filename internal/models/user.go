@@ -35,7 +35,7 @@ type User struct {
 	Password    string    `json:"password" gorm:"type:varchar(255);not null" binding:"required,min=8" example:"$2a$10$EKq8Yv9Y1WnrDFEdiMYCSOaz/oq2I9l9ngJyH/eBRM3lIbcJRLS02"`
 	PhoneNumber string    `json:"phone_number" gorm:"type:varchar(12);not null" binding:"required" example:"+77007473472"`
 	Role        Role      `json:"role" gorm:"type:varchar(10);not null;default:'user'" binding:"required,oneof=admin user" example:"user"`
-	Cart        *Cart     `json:"cart,omitempty" gorm:"foreignKey:UserID"`
+	Cart        *Cart     `json:"cart" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserID"`
 	CreatedAt   time.Time `json:"created_at" gorm:"autoCreateTime" example:"2025-02-25T12:37:32Z"`
 	UpdatedAt   time.Time `json:"updated_at" gorm:"autoUpdateTime" example:"2025-02-25T12:37:32Z"`
 }
@@ -47,7 +47,12 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	}
 	u.Password = hashedPassword
 
-	return
+	return nil
+}
+
+func (u *User) AfterCreate(tx *gorm.DB) (err error) {
+	cart := &Cart{UserID: u.ID}
+	return tx.Create(cart).Error
 }
 
 type RegisterUser struct {

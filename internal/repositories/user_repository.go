@@ -36,12 +36,16 @@ func (r *userRepository) Create(user *models.User) error {
 func (r *userRepository) GetByID(id int) (*models.User, error) {
 	var user models.User
 
-	err := r.db.First(&user, id).Error
+	err := r.db.Preload("Cart.Items").First(&user, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrUserNotFound
 		}
 		return nil, err
+	}
+
+	if user.Cart != nil && user.Cart.Items == nil {
+		user.Cart.Items = []models.CartItem{}
 	}
 
 	return &user, nil

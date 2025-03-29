@@ -11,7 +11,7 @@ import (
 )
 
 func migrate(db *gorm.DB) {
-	db.AutoMigrate(&models.Item{}, &models.User{})
+	db.AutoMigrate(&models.Item{}, &models.User{}, &models.Cart{}, &models.CartItem{})
 
 	var admin models.User
 
