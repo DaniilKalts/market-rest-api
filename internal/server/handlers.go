@@ -23,7 +23,7 @@ func initHandlers(
 	userHandler := handlers.NewUserHandler(userService)
 	authHandler := handlers.NewAuthHandler(authService, tokenStore)
 	profileHandler := handlers.NewProfileHandler(userService, authService)
-	cartHandler := handlers.NewCartHandler(cartService)
+	cartHandler := handlers.NewCartHandler(itemService, cartService)
 
 	return itemHandler, userHandler, authHandler, profileHandler, cartHandler
 }
