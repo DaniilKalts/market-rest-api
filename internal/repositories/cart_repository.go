@@ -6,8 +6,11 @@ import (
 	"gorm.io/gorm"
 )
 
+var ErrCartNotFound = errors.New("cart not found")
+
 type CartRepository interface {
 	Add(cartID int, itemID int) error
+	GetByUserID(userID int) (*models.Cart, error)
 	Update(cartID int, itemID int, quantity uint) error
 	Delete(cartID int, itemID int) error
 	Clear(cartID int) error
@@ -44,6 +47,22 @@ func (r *cartRepository) Add(
 	cartItem.Quantity += 1
 
 	return r.db.Save(&cartItem).Error
+}
+
+func (r *cartRepository) GetByUserID(userID int) (*models.Cart, error) {
+	var cart models.Cart
+
+	err := r.db.Where("user_id = ?", userID).
+		Preload("Items").
+		First(&cart).
+		Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	} else if err != nil {
+		return nil, ErrCartNotFound
+	}
+
+	return &cart, err
 }
 
 func (r *cartRepository) Update(

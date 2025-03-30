@@ -1,11 +1,13 @@
 package services
 
 import (
+	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/repositories"
 )
 
 type CartService interface {
 	AddItem(cartID int, itemID int) error
+	GetCartByUserID(cartID int) (*models.Cart, error)
 	UpdateItem(cartID int, itemID int, quantity uint) error
 	DeleteItem(cartID int, itemID int) error
 	ClearCart(cartID int) error
@@ -21,6 +23,10 @@ func NewCartService(repo repositories.CartRepository) CartService {
 
 func (s *cartService) AddItem(cartID int, itemID int) error {
 	return s.repo.Add(cartID, itemID)
+}
+
+func (s *cartService) GetCartByUserID(userID int) (*models.Cart, error) {
+	return s.repo.GetByUserID(userID)
 }
 
 func (s *cartService) UpdateItem(cartID int, itemID int, quantity uint) error {
