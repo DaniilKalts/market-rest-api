@@ -12,12 +12,18 @@ func SetupServer() *http.Server {
 
 	tokenStore := initRedis()
 
-	itemRepository, userRepository := initRepositories(db)
-	itemService, userService, authService := initServices(itemRepository, userRepository, tokenStore)
-	itemHandler, userHandler, authHandler, profileHandler := initHandlers(
+	itemRepository, userRepository, cartRepository := initRepositories(db)
+	itemService, userService, authService, cartService := initServices(
+		itemRepository,
+		userRepository,
+		cartRepository,
+		tokenStore,
+	)
+	itemHandler, userHandler, authHandler, profileHandler, cartHandler := initHandlers(
 		itemService,
 		userService,
 		authService,
+		cartService,
 		tokenStore,
 	)
 
@@ -26,7 +32,13 @@ func SetupServer() *http.Server {
 		port = "8080"
 	}
 
-	router := setupRouter(itemHandler, userHandler, authHandler, profileHandler)
+	router := setupRouter(
+		itemHandler,
+		userHandler,
+		authHandler,
+		profileHandler,
+		cartHandler,
+	)
 
 	srv := &http.Server{
 		Addr:    ":" + config.Config.Server.Port,

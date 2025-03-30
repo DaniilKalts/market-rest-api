@@ -5,9 +5,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func initRepositories(db *gorm.DB) (repositories.ItemRepository, repositories.UserRepository) {
+func initRepositories(db *gorm.DB) (
+	repositories.ItemRepository,
+	repositories.UserRepository,
+	repositories.CartRepository,
+) {
 	itemRepo := repositories.NewItemRepository(db)
 	userRepo := repositories.NewUserRepository(db)
+	cartRepo := repositories.NewCartRepository(db)
 
-	return itemRepo, userRepo
+	return itemRepo, userRepo, cartRepo
 }

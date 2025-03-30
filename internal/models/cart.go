@@ -17,3 +17,7 @@ type CartItem struct {
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime" example:"2025-02-25T12:37:32Z"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime" example:"2025-02-25T12:37:32Z"`
 }
+
+type UpdateItem struct {
+	Quantity uint `json:"quantity" binding:"required" example:"2"`
+}

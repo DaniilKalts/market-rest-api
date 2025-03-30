@@ -9,11 +9,18 @@ import (
 func initServices(
 	itemRepo repositories.ItemRepository,
 	userRepo repositories.UserRepository,
+	cartRepo repositories.CartRepository,
 	tokenStore *redis.TokenStore,
-) (services.ItemService, services.UserService, services.AuthService) {
+) (
+	services.ItemService,
+	services.UserService,
+	services.AuthService,
+	services.CartService,
+) {
 	itemService := services.NewItemService(itemRepo)
 	userService := services.NewUserService(userRepo)
 	authService := services.NewAuthService(userRepo, tokenStore)
+	cartService := services.NewCartService(cartRepo)
 
-	return itemService, userService, authService
+	return itemService, userService, authService, cartService
 }

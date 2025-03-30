@@ -10,12 +10,20 @@ func initHandlers(
 	itemService services.ItemService,
 	userService services.UserService,
 	authService services.AuthService,
+	cartService services.CartService,
 	tokenStore *redis.TokenStore,
-) (*handlers.ItemHandler, *handlers.UserHandler, *handlers.AuthHandler, *handlers.ProfileHandler) {
+) (
+	*handlers.ItemHandler,
+	*handlers.UserHandler,
+	*handlers.AuthHandler,
+	*handlers.ProfileHandler,
+	*handlers.CartHandler,
+) {
 	itemHandler := handlers.NewItemHandler(itemService)
 	userHandler := handlers.NewUserHandler(userService)
 	authHandler := handlers.NewAuthHandler(authService, tokenStore)
 	profileHandler := handlers.NewProfileHandler(userService, authService)
+	cartHandler := handlers.NewCartHandler(cartService)
 
-	return itemHandler, userHandler, authHandler, profileHandler
+	return itemHandler, userHandler, authHandler, profileHandler, cartHandler
 }
