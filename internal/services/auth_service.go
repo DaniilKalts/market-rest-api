@@ -39,11 +39,15 @@ type authService struct {
 	tokenStore *redis.TokenStore
 }
 
-func NewAuthService(repo repositories.UserRepository, tokenStore *redis.TokenStore) AuthService {
+func NewAuthService(
+	repo repositories.UserRepository, tokenStore *redis.TokenStore,
+) AuthService {
 	return &authService{repo: repo, tokenStore: tokenStore}
 }
 
-func (r *authService) generateAndStoreTokens(userID int, role string) (string, string, error) {
+func (r *authService) generateAndStoreTokens(userID int, role string) (
+	string, string, error,
+) {
 	accessToken, err := jwt.GenerateJWT(strconv.Itoa(userID), 15, role)
 	if err != nil {
 		return "", "", ErrTokenGeneration
@@ -54,14 +58,18 @@ func (r *authService) generateAndStoreTokens(userID int, role string) (string, s
 		return "", "", ErrTokenGeneration
 	}
 
-	if err := r.tokenStore.SaveJWTokens(userID, accessToken, refreshToken); err != nil {
+	if err := r.tokenStore.SaveJWTokens(
+		userID, accessToken, refreshToken,
+	); err != nil {
 		return "", "", ErrTokenStorage
 	}
 
 	return accessToken, refreshToken, nil
 }
 
-func (r *authService) RegisterUser(req *models.RegisterUser) (string, string, error) {
+func (r *authService) RegisterUser(req *models.RegisterUser) (
+	string, string, error,
+) {
 	existingUser, err := r.repo.GetByEmail(req.Email)
 	if err != nil {
 		if errors.Is(err, repositories.ErrUserNotFound) {
@@ -75,11 +83,12 @@ func (r *authService) RegisterUser(req *models.RegisterUser) (string, string, er
 	}
 
 	user := &models.User{
-		Email:     req.Email,
-		Password:  req.Password,
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Role:      models.RoleUser,
+		Email:       req.Email,
+		Password:    req.Password,
+		FirstName:   req.FirstName,
+		LastName:    req.LastName,
+		PhoneNumber: req.PhoneNumber,
+		Role:        models.RoleUser,
 	}
 
 	if err := r.repo.Create(user); err != nil {
@@ -89,7 +98,9 @@ func (r *authService) RegisterUser(req *models.RegisterUser) (string, string, er
 	return r.generateAndStoreTokens(user.ID, string(user.Role))
 }
 
-func (r *authService) LoginUser(email string, password string) (string, string, error) {
+func (r *authService) LoginUser(email string, password string) (
+	string, string, error,
+) {
 	user, err := r.repo.GetByEmail(email)
 	if err != nil {
 		return "", "", ErrUserVerificationFailed
@@ -105,7 +116,9 @@ func (r *authService) LoginUser(email string, password string) (string, string, 
 	return r.generateAndStoreTokens(user.ID, string(user.Role))
 }
 
-func (r *authService) LogoutUser(accessToken string, refreshToken string) error {
+func (r *authService) LogoutUser(
+	accessToken string, refreshToken string,
+) error {
 	claims, err := jwt.ParseJWT(accessToken)
 	if err != nil {
 		return ErrTokenParsingFailed
@@ -116,14 +129,18 @@ func (r *authService) LogoutUser(accessToken string, refreshToken string) error 
 		return ErrInvalidTokenSubject
 	}
 
-	if err := r.tokenStore.DeleteJWTokens(userID, accessToken, refreshToken); err != nil {
+	if err := r.tokenStore.DeleteJWTokens(
+		userID, accessToken, refreshToken,
+	); err != nil {
 		return ErrTokenDeletionFailed
 	}
 
 	return nil
 }
 
-func (r *authService) RefreshTokens(refreshToken string) (string, string, error) {
+func (r *authService) RefreshTokens(refreshToken string) (
+	string, string, error,
+) {
 	claims, err := jwt.ParseJWT(refreshToken)
 	if err != nil {
 		return "", "", ErrTokenParsingFailed
@@ -138,12 +155,16 @@ func (r *authService) RefreshTokens(refreshToken string) (string, string, error)
 		return "", "", ErrTokenDeletionFailed
 	}
 
-	accessToken, refreshToken, err := r.generateAndStoreTokens(userID, claims.Role)
+	accessToken, refreshToken, err := r.generateAndStoreTokens(
+		userID, claims.Role,
+	)
 	if err != nil {
 		return "", "", err
 	}
 
-	if err := r.tokenStore.SaveJWTokens(userID, accessToken, refreshToken); err != nil {
+	if err := r.tokenStore.SaveJWTokens(
+		userID, accessToken, refreshToken,
+	); err != nil {
 		return "", "", ErrTokenSaveFailed
 	}
 
