@@ -81,6 +81,22 @@ func setupRouter(
 			"/:id",
 			userHandler.HandleDeleteUser,
 		)
+		profileRoutes := userRoutes.Group("/me")
+		{
+			profileRoutes.GET(
+				"",
+				profileHandler.HandleGetProfile,
+			)
+			profileRoutes.PUT(
+				"",
+				middlewares.BindBodyMiddleware(&models.UpdateUser{}),
+				profileHandler.HandleUpdateProfile,
+			)
+			profileRoutes.DELETE(
+				"",
+				profileHandler.HandleDeleteProfile,
+			)
+		}
 	}
 
 	authRoutes := router.Group("/auth")
@@ -102,27 +118,6 @@ func setupRouter(
 		authRoutes.POST(
 			"/refresh",
 			authHandler.HandleRefreshToken,
-		)
-	}
-
-	profileRoutes := router.Group("/profile")
-	profileRoutes.Use(
-		middlewares.JWTMiddleware(tokenStore),
-		middlewares.TokenStoreMiddleware(tokenStore),
-	)
-	{
-		profileRoutes.GET(
-			"",
-			profileHandler.HandleGetProfile,
-		)
-		profileRoutes.PUT(
-			"",
-			middlewares.BindBodyMiddleware(&models.UpdateUser{}),
-			profileHandler.HandleUpdateProfile,
-		)
-		profileRoutes.DELETE(
-			"",
-			profileHandler.HandleDeleteProfile,
 		)
 	}
 
