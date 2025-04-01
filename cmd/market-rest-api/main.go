@@ -19,7 +19,7 @@ func main() {
 	srv := server.SetupServer()
 
 	go func() {
-		logger.Info("Server is running on: http://localhost:" + srv.Addr)
+		logger.Info("Server is running on: http://localhost" + srv.Addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Error("Failed to run the server: " + err.Error())
 		}

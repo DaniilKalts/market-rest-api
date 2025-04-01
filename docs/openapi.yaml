@@ -365,6 +365,8 @@ paths:
         - "🔒 Authentication"
       summary: Logout
       description: Log out the currently authenticated user.
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: User logged out successfully.
@@ -394,6 +396,8 @@ paths:
         - "🔒 Authentication"
       summary: Refresh Tokens
       description: Refresh access and refresh tokens using the provided refresh token.
+      security:
+        - bearerAuth: []
       responses:
         "201":
           description: Tokens refreshed successfully.
