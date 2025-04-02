@@ -517,7 +517,78 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /cart/{id}:
+  /cart/items:
+    get:
+      tags:
+        - "🛒 Cart"
+      summary: Get Cart Items
+      description: Retrieve all items in the authenticated user's cart.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Cart items retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Item"
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Cart not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+        - "🛒 Cart"
+      summary: Clear Cart
+      description: Remove all items from the currently authenticated user's cart.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Cart cleared successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "cleared cart"
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /cart/items/{id}:
     parameters:
       - name: id
         in: path
@@ -640,43 +711,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /cart:
-    delete:
-      tags:
-        - "🛒 Cart"
-      summary: Clear Cart
-      description: Remove all items from the currently authenticated user's cart.
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Cart cleared successfully.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "cleared cart"
-        "400":
-          description: Bad Request.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "404":
-          description: Not Found.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
-          description: Internal Server Error.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
 components:
   securitySchemes:
     bearerAuth:
@@ -690,7 +724,6 @@ components:
         error:
           type: string
           example: "Invalid request payload"
-    # Item schemas
     Item:
       type: object
       properties:
@@ -748,5 +781,148 @@ components:
         - name
         - price
         - stock
-    # User schemas
     User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        first_name:
+          type: string
+          example: "Martin"
+          minLength: 2
+          maxLength: 30
+        last_name:
+          type: string
+          example: "Kalts"
+          minLength: 2
+          maxLength: 30
+        email:
+          type: string
+          example: "martin@gmail.com"
+        password:
+          type: string
+          example: "$2a$10$EKq8Yv9Y1WnrDFEdiMYCSOaz/..."
+          minLength: 8
+        phone_number:
+          type: string
+          pattern: "^\\+7[0-9]{10}$"
+          example: "+77007473472"
+        role:
+          type: string
+          enum:
+            - admin
+            - user
+          example: "user"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-02-25T12:37:32Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-02-25T12:37:32Z"
+      required:
+        - first_name
+        - last_name
+        - email
+        - password
+        - phone_number
+        - role
+    RegisterUser:
+      type: object
+      properties:
+        first_name:
+          type: string
+          example: "Martin"
+          minLength: 2
+          maxLength: 30
+        last_name:
+          type: string
+          example: "Kalts"
+          minLength: 2
+          maxLength: 30
+        email:
+          type: string
+          example: "martin@gmail.com"
+        password:
+          type: string
+          example: "12341234"
+          minLength: 8
+        confirm_password:
+          type: string
+          example: "12341234"
+          minLength: 8
+        phone_number:
+          type: string
+          pattern: "^\\+7[0-9]{10}$"
+          example: "+77007473472"
+      required:
+        - first_name
+        - last_name
+        - email
+        - password
+        - confirm_password
+        - phone_number
+    LoginUser:
+      type: object
+      properties:
+        email:
+          type: string
+          example: "martin@gmail.com"
+        password:
+          type: string
+          example: "12341234"
+          minLength: 8
+      required:
+        - email
+        - password
+    UpdateUser:
+      type: object
+      properties:
+        first_name:
+          type: string
+          example: "Martin"
+          minLength: 2
+          maxLength: 30
+        last_name:
+          type: string
+          example: "Kalts"
+          minLength: 2
+          maxLength: 30
+        email:
+          type: string
+          example: "martin.programmer@gmail.com"
+        password:
+          type: string
+          example: "newSecret123"
+          minLength: 8
+        confirm_password:
+          type: string
+          example: "newSecret123"
+          minLength: 8
+        phone_number:
+          type: string
+          pattern: "^\\+7[0-9]{10}$"
+          example: "+77007473472"
+      description: All fields are optional. If updating password, both password and confirm_password must be provided and match.
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refresh_token:
+          type: string
+          example: "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4..."
+      required:
+        - access_token
+        - refresh_token
+    UpdateItem:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          example: 2
+      required:
+        - quantity

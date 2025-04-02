@@ -24,6 +24,37 @@ func NewCartHandler(
 	return &CartHandler{itemService: itemService, cartService: cartService}
 }
 
+func (h *CartHandler) HandleGetCart(ctx *gin.Context) {
+	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
+	if err != nil {
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, convErr := strconv.Atoi(claims.Subject)
+	if convErr != nil {
+		ctx.JSON(
+			http.StatusUnauthorized, gin.H{"error": "invalid user id in token"},
+		)
+		ctx.Abort()
+		return
+	}
+
+	cart, err := h.cartService.GetCartByUserID(userID)
+	if err != nil {
+		ctx.Error(err)
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	if cart == nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "cart not found"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, cart)
+}
+
 func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
 	if err != nil {

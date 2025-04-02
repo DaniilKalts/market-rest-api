@@ -126,21 +126,25 @@ func setupRouter(
 		middlewares.JWTMiddleware(tokenStore),
 	)
 	{
+		cartRoutes.GET(
+			"/items",
+			cartHandler.HandleGetCart,
+		)
 		cartRoutes.POST(
-			"/:id",
+			"/items/:id",
 			cartHandler.HandleAddItem,
 		)
 		cartRoutes.PUT(
-			"/:id",
+			"/items/:id",
 			middlewares.BindBodyMiddleware(&models.UpdateItem{}),
 			cartHandler.HandleUpdateItem,
 		)
 		cartRoutes.DELETE(
-			"/:id",
+			"/items/:id",
 			cartHandler.HandleDeleteItem,
 		)
 		cartRoutes.DELETE(
-			"",
+			"/items",
 			cartHandler.HandleClearCart,
 		)
 	}
