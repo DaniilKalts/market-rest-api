@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -10,7 +9,6 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
-	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 )
 
 type ItemHandler struct {
@@ -22,20 +20,6 @@ func NewItemHandler(service services.ItemService) *ItemHandler {
 }
 
 func (h *ItemHandler) HandleCreateItem(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
-	if err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if claims.Role != "admin" {
-		err := errors.New("admin access only")
-		ctx.Error(err)
-		ctx.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-		return
-	}
-
 	item, err := ginhelpers.GetContextValue[*models.Item](ctx, "model")
 	if err != nil {
 		ctx.Error(err)
@@ -84,20 +68,6 @@ func (h *ItemHandler) HandleGetAllItems(ctx *gin.Context) {
 }
 
 func (h *ItemHandler) HandleUpdateItem(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
-	if err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if claims.Role != "admin" {
-		err := errors.New("admin access only")
-		ctx.Error(err)
-		ctx.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-		return
-	}
-
 	item, err := ginhelpers.GetContextValue[*models.Item](ctx, "model")
 	if err != nil {
 		ctx.Error(err)
@@ -115,20 +85,6 @@ func (h *ItemHandler) HandleUpdateItem(ctx *gin.Context) {
 }
 
 func (h *ItemHandler) HandleDeleteItem(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
-	if err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if claims.Role != "admin" {
-		err := errors.New("admin access only")
-		ctx.Error(err)
-		ctx.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-		return
-	}
-
 	idStr := ctx.Param("id")
 
 	id, err := strconv.Atoi(idStr)

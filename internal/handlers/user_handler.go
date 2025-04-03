@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -10,7 +9,6 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
-	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 )
 
 type UserHandler struct {
@@ -22,20 +20,6 @@ func NewUserHandler(service services.UserService) *UserHandler {
 }
 
 func (h *UserHandler) HandleGetUserByID(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
-	if err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if claims.Role != "admin" {
-		err := errors.New("admin access only")
-		ctx.Error(err)
-		ctx.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-		return
-	}
-
 	idStr := ctx.Param("id")
 
 	id, err := strconv.Atoi(idStr)
@@ -56,20 +40,6 @@ func (h *UserHandler) HandleGetUserByID(ctx *gin.Context) {
 }
 
 func (h *UserHandler) HandleGetAllUsers(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
-	if err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if claims.Role != "admin" {
-		err := errors.New("admin access only")
-		ctx.Error(err)
-		ctx.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-		return
-	}
-
 	users, err := h.service.GetAllUsers()
 	if err != nil {
 		ctx.Error(err)
@@ -81,20 +51,6 @@ func (h *UserHandler) HandleGetAllUsers(ctx *gin.Context) {
 }
 
 func (h *UserHandler) HandleUpdateUserByID(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
-	if err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if claims.Role != "admin" {
-		err := errors.New("admin access only")
-		ctx.Error(err)
-		ctx.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-		return
-	}
-
 	user, err := ginhelpers.GetContextValue[*models.UpdateUser](ctx, "model")
 	if err != nil {
 		ctx.Error(err)
@@ -139,20 +95,6 @@ func (h *UserHandler) HandleUpdateUserByID(ctx *gin.Context) {
 }
 
 func (h *UserHandler) HandleDeleteUser(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
-	if err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if claims.Role != "admin" {
-		err := errors.New("admin access only")
-		ctx.Error(err)
-		ctx.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-		return
-	}
-
 	idStr := ctx.Param("id")
 
 	id, err := strconv.Atoi(idStr)

@@ -44,16 +44,19 @@ func setupRouter(
 	{
 		itemPrivateRoutes.POST(
 			"",
+			middlewares.AdminMiddleware(),
 			middlewares.BindBodyMiddleware(&models.Item{}),
 			itemHandler.HandleCreateItem,
 		)
 		itemPrivateRoutes.PUT(
 			"/:id",
+			middlewares.AdminMiddleware(),
 			middlewares.BindBodyMiddleware(&models.Item{}),
 			itemHandler.HandleUpdateItem,
 		)
 		itemPrivateRoutes.DELETE(
 			"/:id",
+			middlewares.AdminMiddleware(),
 			itemHandler.HandleDeleteItem,
 		)
 	}
@@ -66,19 +69,23 @@ func setupRouter(
 	{
 		userRoutes.GET(
 			"/:id",
+			middlewares.AdminMiddleware(),
 			userHandler.HandleGetUserByID,
 		)
 		userRoutes.GET(
 			"",
+			middlewares.AdminMiddleware(),
 			userHandler.HandleGetAllUsers,
 		)
 		userRoutes.PUT(
 			"/:id",
+			middlewares.AdminMiddleware(),
 			middlewares.BindBodyMiddleware(&models.UpdateUser{}),
 			userHandler.HandleUpdateUserByID,
 		)
 		userRoutes.DELETE(
 			"/:id",
+			middlewares.AdminMiddleware(),
 			userHandler.HandleDeleteUser,
 		)
 		profileRoutes := userRoutes.Group("/me")
