@@ -11,7 +11,7 @@ type ItemService interface {
 	CreateItem(item *models.Item) error
 	GetItemByID(id int) (*models.Item, error)
 	GetAllItems() ([]models.Item, error)
-	UpdateItem(item *models.Item) error
+	UpdateItem(id int, item *models.UpdateItem) (*models.Item, error)
 	DeleteItem(id int) error
 }
 
@@ -35,17 +35,36 @@ func (s *itemService) GetAllItems() ([]models.Item, error) {
 	return s.repo.GetAll()
 }
 
-func (s *itemService) UpdateItem(item *models.Item) error {
-	existingItem, err := s.repo.GetByID(item.ID)
-
+func (s *itemService) UpdateItem(
+	id int,
+	updateItemDTO *models.UpdateItem,
+) (*models.Item, error) {
+	existingItem, err := s.repo.GetByID(id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if existingItem == nil {
-		return errors.New("item not found")
+		return nil, errors.New("item not found")
 	}
 
-	return s.repo.Update(item)
+	if updateItemDTO.Name != nil {
+		existingItem.Name = *updateItemDTO.Name
+	}
+	if updateItemDTO.Description != nil {
+		existingItem.Description = *updateItemDTO.Description
+	}
+	if updateItemDTO.Price != nil {
+		existingItem.Price = *updateItemDTO.Price
+	}
+	if updateItemDTO.Stock != nil {
+		existingItem.Stock = *updateItemDTO.Stock
+	}
+
+	err = s.repo.Update(existingItem)
+	if err != nil {
+		return nil, err
+	}
+	return existingItem, nil
 }
 
 func (s *itemService) DeleteItem(id int) error {

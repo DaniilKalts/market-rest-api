@@ -11,3 +11,10 @@ type Item struct {
 	CreatedAt   time.Time `json:"created_at" gorm:"autoCreateTime" example:"2025-02-25T12:37:32Z"`
 	UpdatedAt   time.Time `json:"updated_at" gorm:"autoUpdateTime" example:"2025-02-25T12:37:32Z"`
 }
+
+type UpdateItem struct {
+	Name        *string `json:"name" binding:"omitempty,min=5,max=40" example:"T-shirt"`
+	Description *string `json:"description" binding:"omitempty" example:"A premium quality T-shirt featuring an exclusive IITU logo design."`
+	Price       *uint   `json:"price" binding:"omitempty,gte=10,lte=100" example:"30"`
+	Stock       *uint   `json:"stock" binding:"omitempty" example:"20"`
+}

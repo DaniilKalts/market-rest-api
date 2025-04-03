@@ -12,20 +12,19 @@ import (
 
 var phoneRegex = regexp.MustCompile(`^\+7[0-9]{10}$`)
 
+func ValidatePhoneNumber(phoneNumber string) error {
+	if !phoneRegex.MatchString(phoneNumber) {
+		return errors.New("invalid phone number format for Kazakhstan")
+	}
+	return nil
+}
+
 type Role string
 
 const (
 	RoleAdmin Role = "admin"
 	RoleUser  Role = "user"
 )
-
-func ValidatePhoneNumber(phoneNumber string) error {
-	if !phoneRegex.MatchString(phoneNumber) {
-		return errors.New("invalid phone number format for Kazakhstan")
-	}
-
-	return nil
-}
 
 type User struct {
 	ID          int       `json:"id" gorm:"primaryKey" example:"1"`
@@ -54,7 +53,6 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 		return err
 	}
 	u.Password = hashedPassword
-
 	return nil
 }
 

@@ -13,12 +13,12 @@ type Cart struct {
 type CartItem struct {
 	CartID    int       `json:"cart_id" gorm:"primaryKey;not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" example:"1"`
 	ItemID    int       `json:"item_id" gorm:"primaryKey;not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" example:"1"`
-	Item      Item      `json:"item"`
+	Item      Item      `json:"item" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:ItemID;references:ID;"`
 	Quantity  uint      `json:"quantity" gorm:"not null" example:"2"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime" example:"2025-02-25T12:37:32Z"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime" example:"2025-02-25T12:37:32Z"`
 }
 
-type UpdateItem struct {
+type UpdateCartItem struct {
 	Quantity uint `json:"quantity" binding:"required" example:"2"`
 }

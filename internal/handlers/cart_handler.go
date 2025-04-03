@@ -125,7 +125,7 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 		return
 	}
 
-	updateItem, err := ginhelpers.GetContextValue[*models.UpdateItem](
+	updateItem, err := ginhelpers.GetContextValue[*models.UpdateCartItem](
 		ctx, "model",
 	)
 	if err != nil {

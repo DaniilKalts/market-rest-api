@@ -72,20 +72,32 @@ func (h *ItemHandler) HandleGetAllItems(ctx *gin.Context) {
 }
 
 func (h *ItemHandler) HandleUpdateItem(ctx *gin.Context) {
-	item, err := ginhelpers.GetContextValue[*models.Item](ctx, "model")
+	updateItemDTO, err := ginhelpers.GetContextValue[*models.UpdateItem](
+		ctx, "model",
+	)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := h.service.UpdateItem(item); err != nil {
+	idStr := ctx.Param("id")
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		ctx.Error(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid item id"})
+		return
+	}
+
+	updatedItem, err := h.service.UpdateItem(id, updateItemDTO)
+	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, item)
+	ctx.JSON(http.StatusOK, updatedItem)
 }
 
 func (h *ItemHandler) HandleDeleteItem(ctx *gin.Context) {

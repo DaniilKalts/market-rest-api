@@ -51,7 +51,7 @@ func setupRouter(
 		itemPrivateRoutes.PUT(
 			"/:id",
 			middlewares.AdminMiddleware(),
-			middlewares.BindBodyMiddleware(&models.Item{}),
+			middlewares.BindBodyMiddleware(&models.UpdateItem{}),
 			itemHandler.HandleUpdateItem,
 		)
 		itemPrivateRoutes.DELETE(
@@ -143,7 +143,7 @@ func setupRouter(
 		)
 		cartRoutes.PUT(
 			"/items/:id",
-			middlewares.BindBodyMiddleware(&models.UpdateItem{}),
+			middlewares.BindBodyMiddleware(&models.UpdateCartItem{}),
 			cartHandler.HandleUpdateItem,
 		)
 		cartRoutes.DELETE(
