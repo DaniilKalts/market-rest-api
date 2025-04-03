@@ -17,7 +17,7 @@ type UserRepository interface {
 	GetByID(id int) (*models.User, error)
 	GetByEmail(email string) (*models.User, error)
 	GetAll() ([]models.User, error)
-	Update(user *models.User) error
+	Update(user *models.User) (*models.User, error)
 	Delete(id int) error
 }
 
@@ -75,8 +75,13 @@ func (r *userRepository) GetAll() ([]models.User, error) {
 	return users, nil
 }
 
-func (r *userRepository) Update(user *models.User) error {
-	return r.db.Save(user).Error
+func (r *userRepository) Update(user *models.User) (*models.User, error) {
+	err := r.db.Save(user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (r *userRepository) Delete(id int) error {

@@ -12,7 +12,9 @@ type UserService interface {
 	GetUserByID(id int) (*models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
 	GetAllUsers() ([]models.User, error)
-	UpdateUserByID(id int, updateUserDTO *models.UpdateUser) error
+	UpdateUserByID(id int, updateUserDTO *models.UpdateUser) (
+		*models.User, error,
+	)
 	DeleteUserByID(id int) error
 }
 
@@ -36,10 +38,13 @@ func (s *userService) GetAllUsers() ([]models.User, error) {
 	return s.repo.GetAll()
 }
 
-func (s *userService) UpdateUserByID(userID int, updateUserDTO *models.UpdateUser) error {
+func (s *userService) UpdateUserByID(
+	userID int,
+	updateUserDTO *models.UpdateUser,
+) (*models.User, error) {
 	existingUser, err := s.repo.GetByID(userID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if updateUserDTO.FirstName != nil {
@@ -56,12 +61,12 @@ func (s *userService) UpdateUserByID(userID int, updateUserDTO *models.UpdateUse
 	}
 	if updateUserDTO.Password != nil || updateUserDTO.ConfirmPassword != nil {
 		if updateUserDTO.Password == nil || updateUserDTO.ConfirmPassword == nil || *updateUserDTO.Password != *updateUserDTO.ConfirmPassword {
-			return errors.New("passwords do not match")
+			return nil, errors.New("passwords do not match")
 		}
 		if *updateUserDTO.Password != "" {
 			hashedPassword, err := jwt.HashPassword(*updateUserDTO.Password)
 			if err != nil {
-				return err
+				return nil, err
 			}
 			existingUser.Password = hashedPassword
 		}

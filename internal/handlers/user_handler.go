@@ -117,13 +117,25 @@ func (h *UserHandler) HandleUpdateUserByID(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.service.UpdateUserByID(userID, user); err != nil {
+	updatedUser, err := h.service.UpdateUserByID(userID, user)
+	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "user updated successfully"})
+	userResponse := models.UserResponse{
+		ID:          updatedUser.ID,
+		FirstName:   updatedUser.FirstName,
+		LastName:    updatedUser.LastName,
+		Email:       updatedUser.Email,
+		PhoneNumber: updatedUser.PhoneNumber,
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		userResponse,
+	)
 }
 
 func (h *UserHandler) HandleDeleteUser(ctx *gin.Context) {

@@ -91,13 +91,25 @@ func (h *ProfileHandler) HandleUpdateProfile(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.userService.UpdateUserByID(userID, user); err != nil {
+	updatedUser, err := h.userService.UpdateUserByID(userID, user)
+	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "profile updated successfully"})
+	userResponse := models.UserResponse{
+		ID:          updatedUser.ID,
+		FirstName:   updatedUser.FirstName,
+		LastName:    updatedUser.LastName,
+		Email:       updatedUser.Email,
+		PhoneNumber: updatedUser.PhoneNumber,
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		userResponse,
+	)
 }
 
 func (h *ProfileHandler) HandleDeleteProfile(ctx *gin.Context) {
