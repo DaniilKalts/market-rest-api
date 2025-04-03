@@ -103,13 +103,14 @@ func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.cartService.AddItem(cart.ID, itemID); err != nil {
+	cartItem, err := h.cartService.AddItem(cart.ID, itemID)
+	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "added item"})
+	ctx.JSON(http.StatusOK, cartItem)
 }
 
 func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
@@ -170,15 +171,16 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.cartService.UpdateItem(
+	cartItem, err := h.cartService.UpdateItem(
 		cart.ID, itemID, updateItem.Quantity,
-	); err != nil {
+	)
+	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "updated item"})
+	ctx.JSON(http.StatusOK, cartItem)
 }
 
 func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
@@ -235,7 +237,7 @@ func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "deleted item"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "item deleted successfully"})
 }
 
 func (h *CartHandler) HandleClearCart(ctx *gin.Context) {
@@ -272,5 +274,5 @@ func (h *CartHandler) HandleClearCart(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "cleared cart"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "cart cleared successfully"})
 }

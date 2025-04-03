@@ -6,9 +6,9 @@ import (
 )
 
 type CartService interface {
-	AddItem(cartID int, itemID int) error
+	AddItem(cartID int, itemID int) (*models.CartItem, error)
 	GetCartByUserID(cartID int) (*models.Cart, error)
-	UpdateItem(cartID int, itemID int, quantity uint) error
+	UpdateItem(cartID int, itemID int, quantity uint) (*models.CartItem, error)
 	DeleteItem(cartID int, itemID int) error
 	ClearCart(cartID int) error
 }
@@ -21,7 +21,9 @@ func NewCartService(repo repositories.CartRepository) CartService {
 	return &cartService{repo: repo}
 }
 
-func (s *cartService) AddItem(cartID int, itemID int) error {
+func (s *cartService) AddItem(cartID int, itemID int) (
+	*models.CartItem, error,
+) {
 	return s.repo.Add(cartID, itemID)
 }
 
@@ -31,7 +33,11 @@ func (s *cartService) GetCartByUserID(userID int) (
 	return s.repo.GetByUserID(userID)
 }
 
-func (s *cartService) UpdateItem(cartID int, itemID int, quantity uint) error {
+func (s *cartService) UpdateItem(
+	cartID int,
+	itemID int,
+	quantity uint,
+) (*models.CartItem, error) {
 	return s.repo.Update(cartID, itemID, quantity)
 }
 
