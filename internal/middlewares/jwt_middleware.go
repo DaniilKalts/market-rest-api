@@ -3,7 +3,6 @@ package middlewares
 import (
 	"errors"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +12,6 @@ import (
 
 var (
 	ErrAuthHeaderMissing         = errors.New("authorization header missing or invalid token")
-	ErrInvalidUserID             = errors.New("invalid user id in token")
 	ErrUserIDNotFound            = errors.New("user id not found")
 	ErrUserIDTypeAssertionFailed = errors.New("user id type assertion failed")
 )
@@ -39,17 +37,7 @@ func JWTMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		userID, convErr := strconv.Atoi(claims.Subject)
-		if convErr != nil {
-			ctx.JSON(
-				http.StatusUnauthorized,
-				gin.H{"error": ErrInvalidUserID.Error()},
-			)
-			ctx.Abort()
-			return
-		}
-
-		ctx.Set("userID", userID)
+		ctx.Set("claims", claims)
 		ctx.Set("tokenString", tokenString)
 		ctx.Next()
 	}

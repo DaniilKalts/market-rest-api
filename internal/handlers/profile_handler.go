@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -10,6 +11,12 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
+)
+
+var (
+	ErrClaimsNotFound = errors.New("claims not found in context")
+	ErrInvalidClaims  = errors.New("claims are not of the expected type")
+	ErrInvalidUserID  = errors.New("invalid user id in token")
 )
 
 type ProfileHandler struct {
@@ -24,13 +31,17 @@ func NewProfileHandler(
 }
 
 func getUserIDFromContext(ctx *gin.Context) (int, error) {
-	val, exists := ctx.Get("userID")
+	claimsVal, exists := ctx.Get("claims")
 	if !exists {
-		return 0, errors.New("user id not found in context")
+		return 0, ErrClaimsNotFound
 	}
-	userID, ok := val.(int)
+	claims, ok := claimsVal.(*jwt.Claims)
 	if !ok {
-		return 0, errors.New("user id is not an int")
+		return 0, ErrInvalidClaims
+	}
+	userID, err := strconv.Atoi(claims.Subject)
+	if err != nil {
+		return 0, ErrInvalidUserID
 	}
 	return userID, nil
 }

@@ -57,6 +57,7 @@ func (h *CartHandler) HandleGetCart(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
+
 	ctx.JSON(http.StatusOK, cart)
 }
 

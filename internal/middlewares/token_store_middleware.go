@@ -3,7 +3,9 @@ package middlewares
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
+	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 	"github.com/DaniilKalts/market-rest-api/pkg/redis"
 	"github.com/gin-gonic/gin"
 )
@@ -16,21 +18,30 @@ var (
 
 func TokenStoreMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		userIDVal, exists := ctx.Get("userID")
+		claimsVal, exists := ctx.Get("claims")
 		if !exists {
 			ctx.JSON(
 				http.StatusUnauthorized,
-				gin.H{"error": ErrUserIDNotFound.Error()},
+				gin.H{"error": ErrClaimsNotFound.Error()},
+			)
+			ctx.Abort()
+			return
+		}
+		claims, ok := claimsVal.(*jwt.Claims)
+		if !ok {
+			ctx.JSON(
+				http.StatusUnauthorized,
+				gin.H{"error": ErrInvalidClaims.Error()},
 			)
 			ctx.Abort()
 			return
 		}
 
-		userID, ok := userIDVal.(int)
-		if !ok {
+		userID, err := strconv.Atoi(claims.Subject)
+		if err != nil {
 			ctx.JSON(
 				http.StatusUnauthorized,
-				gin.H{"error": ErrUserIDTypeAssertionFailed.Error()},
+				gin.H{"error": ErrUnauthorizedToken.Error()},
 			)
 			ctx.Abort()
 			return
@@ -66,7 +77,7 @@ func TokenStoreMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
 			return
 		}
 
-		ctx.Set("userID", userID)
+		ctx.Set("claims", claims)
 		ctx.Next()
 	}
 }
