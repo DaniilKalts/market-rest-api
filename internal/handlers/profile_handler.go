@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"github.com/DaniilKalts/market-rest-api/internal/models"
+	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
@@ -23,20 +23,23 @@ func NewProfileHandler(
 	return &ProfileHandler{userService: userService, authService: authService}
 }
 
+func getUserIDFromContext(ctx *gin.Context) (int, error) {
+	val, exists := ctx.Get("userID")
+	if !exists {
+		return 0, errors.New("user id not found in context")
+	}
+	userID, ok := val.(int)
+	if !ok {
+		return 0, errors.New("user id is not an int")
+	}
+	return userID, nil
+}
+
 func (h *ProfileHandler) HandleGetProfile(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
+	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	userID, convErr := strconv.Atoi(claims.Subject)
-	if convErr != nil {
-		ctx.JSON(
-			http.StatusUnauthorized, gin.H{"error": "invalid user id in token"},
-		)
-		ctx.Abort()
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -55,43 +58,33 @@ func (h *ProfileHandler) HandleGetProfile(ctx *gin.Context) {
 		PhoneNumber: user.PhoneNumber,
 	}
 
-	ctx.JSON(
-		http.StatusOK,
-		userResponse,
-	)
+	ctx.JSON(http.StatusOK, userResponse)
 }
 
 func (h *ProfileHandler) HandleUpdateProfile(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
+	userID, err := getUserIDFromContext(ctx)
+	if err != nil {
+		ctx.Error(err)
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	updateUser, err := ginhelpers.GetContextValue[*models.UpdateUser](
+		ctx, "model",
+	)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	userID, convErr := strconv.Atoi(claims.Subject)
-	if convErr != nil {
-		ctx.JSON(
-			http.StatusUnauthorized, gin.H{"error": "invalid user id in token"},
-		)
-		ctx.Abort()
-		return
-	}
-
-	user, err := ginhelpers.GetContextValue[*models.UpdateUser](ctx, "model")
-	if err != nil {
+	if err := updateUser.Validate(); err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := user.Validate(); err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	updatedUser, err := h.userService.UpdateUserByID(userID, user)
+	updatedUser, err := h.userService.UpdateUserByID(userID, updateUser)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -106,10 +99,7 @@ func (h *ProfileHandler) HandleUpdateProfile(ctx *gin.Context) {
 		PhoneNumber: updatedUser.PhoneNumber,
 	}
 
-	ctx.JSON(
-		http.StatusOK,
-		userResponse,
-	)
+	ctx.JSON(http.StatusOK, userResponse)
 }
 
 func (h *ProfileHandler) HandleDeleteProfile(ctx *gin.Context) {
@@ -133,19 +123,10 @@ func (h *ProfileHandler) HandleDeleteProfile(ctx *gin.Context) {
 		return
 	}
 
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
+	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	userID, convErr := strconv.Atoi(claims.Subject)
-	if convErr != nil {
-		ctx.JSON(
-			http.StatusUnauthorized, gin.H{"error": "invalid user id in token"},
-		)
-		ctx.Abort()
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 

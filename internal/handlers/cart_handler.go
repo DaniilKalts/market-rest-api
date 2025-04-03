@@ -9,7 +9,6 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
-	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 )
 
 type CartHandler struct {
@@ -25,19 +24,10 @@ func NewCartHandler(
 }
 
 func (h *CartHandler) HandleGetCart(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
+	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	userID, convErr := strconv.Atoi(claims.Subject)
-	if convErr != nil {
-		ctx.JSON(
-			http.StatusUnauthorized, gin.H{"error": "invalid user id in token"},
-		)
-		ctx.Abort()
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -56,19 +46,10 @@ func (h *CartHandler) HandleGetCart(ctx *gin.Context) {
 }
 
 func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
+	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	userID, convErr := strconv.Atoi(claims.Subject)
-	if convErr != nil {
-		ctx.JSON(
-			http.StatusUnauthorized, gin.H{"error": "invalid user id in token"},
-		)
-		ctx.Abort()
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -84,7 +65,6 @@ func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 	}
 
 	itemIDStr := ctx.Param("id")
-
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
 		ctx.Error(err)
@@ -114,19 +94,10 @@ func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 }
 
 func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
+	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	userID, convErr := strconv.Atoi(claims.Subject)
-	if convErr != nil {
-		ctx.JSON(
-			http.StatusUnauthorized, gin.H{"error": "invalid user id in token"},
-		)
-		ctx.Abort()
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -142,7 +113,6 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 	}
 
 	itemIDStr := ctx.Param("id")
-
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
 		ctx.Error(err)
@@ -162,8 +132,7 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 	}
 
 	updateItem, err := ginhelpers.GetContextValue[*models.UpdateItem](
-		ctx,
-		"model",
+		ctx, "model",
 	)
 	if err != nil {
 		ctx.Error(err)
@@ -184,19 +153,10 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 }
 
 func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
+	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	userID, convErr := strconv.Atoi(claims.Subject)
-	if convErr != nil {
-		ctx.JSON(
-			http.StatusUnauthorized, gin.H{"error": "invalid user id in token"},
-		)
-		ctx.Abort()
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -212,7 +172,6 @@ func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
 	}
 
 	itemIDStr := ctx.Param("id")
-
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
 		ctx.Error(err)
@@ -241,19 +200,10 @@ func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
 }
 
 func (h *CartHandler) HandleClearCart(ctx *gin.Context) {
-	claims, err := ginhelpers.GetContextValue[*jwt.Claims](ctx, "claims")
+	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	userID, convErr := strconv.Atoi(claims.Subject)
-	if convErr != nil {
-		ctx.JSON(
-			http.StatusUnauthorized, gin.H{"error": "invalid user id in token"},
-		)
-		ctx.Abort()
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 

@@ -38,7 +38,7 @@ func setupRouter(
 
 	itemPrivateRoutes := router.Group("/items")
 	itemPrivateRoutes.Use(
-		middlewares.JWTMiddleware(tokenStore),
+		middlewares.JWTMiddleware(),
 		middlewares.TokenStoreMiddleware(tokenStore),
 	)
 	{
@@ -63,7 +63,7 @@ func setupRouter(
 
 	userRoutes := router.Group("/users")
 	userRoutes.Use(
-		middlewares.JWTMiddleware(tokenStore),
+		middlewares.JWTMiddleware(),
 		middlewares.TokenStoreMiddleware(tokenStore),
 	)
 	{
@@ -130,7 +130,7 @@ func setupRouter(
 
 	cartRoutes := router.Group("/cart")
 	cartRoutes.Use(
-		middlewares.JWTMiddleware(tokenStore),
+		middlewares.JWTMiddleware(),
 	)
 	{
 		cartRoutes.GET(
