@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -11,56 +12,59 @@ import (
 	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
 )
 
+var (
+	ErrCartNotFound = errors.New("cart not found")
+	ErrItemNotFound = errors.New("item not found")
+	ErrInvalidID    = errors.New("invalid id parameter")
+	MsgCartCleared  = "cart cleared successfully"
+)
+
+func getCart(ctx *gin.Context, cartService services.CartService) (
+	*models.Cart, error,
+) {
+	userID, err := getUserIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	cart, err := cartService.GetCartByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+	if cart == nil {
+		return nil, ErrCartNotFound
+	}
+	return cart, nil
+}
+
 type CartHandler struct {
 	itemService services.ItemService
 	cartService services.CartService
 }
 
 func NewCartHandler(
-	itemService services.ItemService,
-	cartService services.CartService,
+	itemService services.ItemService, cartService services.CartService,
 ) *CartHandler {
-	return &CartHandler{itemService: itemService, cartService: cartService}
+	return &CartHandler{
+		itemService: itemService,
+		cartService: cartService,
+	}
 }
 
 func (h *CartHandler) HandleGetCart(ctx *gin.Context) {
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	cart, err := h.cartService.GetCartByUserID(userID)
+	cart, err := getCart(ctx, h.cartService)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	if cart == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "cart not found"})
-		return
-	}
-
 	ctx.JSON(http.StatusOK, cart)
 }
 
 func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	cart, err := h.cartService.GetCartByUserID(userID)
+	cart, err := getCart(ctx, h.cartService)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	if cart == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "cart not found"})
 		return
 	}
 
@@ -68,7 +72,7 @@ func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidID.Error()})
 		return
 	}
 
@@ -79,7 +83,7 @@ func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 		return
 	}
 	if item == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "item not found"})
+		ctx.JSON(http.StatusNotFound, gin.H{"error": ErrItemNotFound.Error()})
 		return
 	}
 
@@ -94,21 +98,10 @@ func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 }
 
 func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	cart, err := h.cartService.GetCartByUserID(userID)
+	cart, err := getCart(ctx, h.cartService)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	if cart == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "cart not found"})
 		return
 	}
 
@@ -116,7 +109,7 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidID.Error()})
 		return
 	}
 
@@ -127,7 +120,7 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 		return
 	}
 	if item == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "item not found"})
+		ctx.JSON(http.StatusNotFound, gin.H{"error": ErrItemNotFound.Error()})
 		return
 	}
 
@@ -153,21 +146,10 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 }
 
 func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	cart, err := h.cartService.GetCartByUserID(userID)
+	cart, err := getCart(ctx, h.cartService)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	if cart == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "cart not found"})
 		return
 	}
 
@@ -175,7 +157,7 @@ func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidID.Error()})
 		return
 	}
 
@@ -186,7 +168,7 @@ func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
 		return
 	}
 	if item == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "item not found"})
+		ctx.JSON(http.StatusNotFound, gin.H{"error": ErrItemNotFound.Error()})
 		return
 	}
 
@@ -196,25 +178,14 @@ func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "item deleted successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": MsgItemDeleted})
 }
 
 func (h *CartHandler) HandleClearCart(ctx *gin.Context) {
-	userID, err := getUserIDFromContext(ctx)
-	if err != nil {
-		ctx.Error(err)
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	cart, err := h.cartService.GetCartByUserID(userID)
+	cart, err := getCart(ctx, h.cartService)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	if cart == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "cart not found"})
 		return
 	}
 
@@ -224,5 +195,5 @@ func (h *CartHandler) HandleClearCart(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "cart cleared successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": MsgCartCleared})
 }

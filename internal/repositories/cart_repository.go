@@ -88,29 +88,21 @@ func (r *cartRepository) Update(
 ) (*models.CartItem, error) {
 	var cartItem models.CartItem
 
-	err := r.db.
-		Where("cart_id = ? AND item_id = ?", cartID, itemID).
-		First(&cartItem).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, ErrItemNotFound
-	} else if err != nil {
-		return nil, err
-	}
-
-	if err = r.db.
-		Model(&cartItem).
-		Where("cart_id = ? AND item_id = ?", cartID, itemID).
-		Update("quantity", quantity).Error; err != nil {
-		return nil, err
-	}
-
-	if err = r.db.
+	if err := r.db.
 		Where("cart_id = ? AND item_id = ?", cartID, itemID).
 		First(&cartItem).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrItemNotFound
+		}
 		return nil, err
 	}
 
-	if err = r.db.
+	cartItem.Quantity = quantity
+	if err := r.db.Save(&cartItem).Error; err != nil {
+		return nil, err
+	}
+
+	if err := r.db.
 		Preload("Item").
 		Where("cart_id = ? AND item_id = ?", cartID, itemID).
 		First(&cartItem).Error; err != nil {

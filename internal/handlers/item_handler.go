@@ -11,6 +11,10 @@ import (
 	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
 )
 
+var (
+	MsgItemDeleted = "item deleted successfully"
+)
+
 type ItemHandler struct {
 	service services.ItemService
 }
