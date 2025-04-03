@@ -40,6 +40,14 @@ type User struct {
 	UpdatedAt   time.Time `json:"updated_at" gorm:"autoUpdateTime" example:"2025-02-25T12:37:32Z"`
 }
 
+type UserResponse struct {
+	ID          int    `json:"id" example:"1"`
+	FirstName   string `json:"first_name" example:"Martin"`
+	LastName    string `json:"last_name" example:"Kalts"`
+	Email       string `json:"email" example:"martin@gmail.com"`
+	PhoneNumber string `json:"phone_number" example:"+77007473472"`
+}
+
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	hashedPassword, err := jwt.HashPassword(u.Password)
 	if err != nil {

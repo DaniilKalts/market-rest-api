@@ -53,7 +53,7 @@ func (r *cartRepository) GetByUserID(userID int) (*models.Cart, error) {
 	var cart models.Cart
 
 	err := r.db.Where("user_id = ?", userID).
-		Preload("Items").
+		Preload("Items.Item").
 		First(&cart).
 		Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {

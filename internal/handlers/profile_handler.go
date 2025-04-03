@@ -17,7 +17,9 @@ type ProfileHandler struct {
 	authService services.AuthService
 }
 
-func NewProfileHandler(userService services.UserService, authService services.AuthService) *ProfileHandler {
+func NewProfileHandler(
+	userService services.UserService, authService services.AuthService,
+) *ProfileHandler {
 	return &ProfileHandler{userService: userService, authService: authService}
 }
 
@@ -31,7 +33,9 @@ func (h *ProfileHandler) HandleGetProfile(ctx *gin.Context) {
 
 	userID, convErr := strconv.Atoi(claims.Subject)
 	if convErr != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user id in token"})
+		ctx.JSON(
+			http.StatusUnauthorized, gin.H{"error": "invalid user id in token"},
+		)
 		ctx.Abort()
 		return
 	}
@@ -43,7 +47,18 @@ func (h *ProfileHandler) HandleGetProfile(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, user)
+	userResponse := models.UserResponse{
+		ID:          user.ID,
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+		Email:       user.Email,
+		PhoneNumber: user.PhoneNumber,
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		userResponse,
+	)
 }
 
 func (h *ProfileHandler) HandleUpdateProfile(ctx *gin.Context) {
@@ -56,7 +71,9 @@ func (h *ProfileHandler) HandleUpdateProfile(ctx *gin.Context) {
 
 	userID, convErr := strconv.Atoi(claims.Subject)
 	if convErr != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user id in token"})
+		ctx.JSON(
+			http.StatusUnauthorized, gin.H{"error": "invalid user id in token"},
+		)
 		ctx.Abort()
 		return
 	}
@@ -113,7 +130,9 @@ func (h *ProfileHandler) HandleDeleteProfile(ctx *gin.Context) {
 
 	userID, convErr := strconv.Atoi(claims.Subject)
 	if convErr != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user id in token"})
+		ctx.JSON(
+			http.StatusUnauthorized, gin.H{"error": "invalid user id in token"},
+		)
 		ctx.Abort()
 		return
 	}

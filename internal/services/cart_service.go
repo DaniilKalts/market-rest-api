@@ -25,7 +25,9 @@ func (s *cartService) AddItem(cartID int, itemID int) error {
 	return s.repo.Add(cartID, itemID)
 }
 
-func (s *cartService) GetCartByUserID(userID int) (*models.Cart, error) {
+func (s *cartService) GetCartByUserID(userID int) (
+	*models.Cart, error,
+) {
 	return s.repo.GetByUserID(userID)
 }
 
