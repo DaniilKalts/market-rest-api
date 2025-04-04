@@ -8,10 +8,13 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 )
 
-var ErrCartNotFound = errors.New("cart not found")
+var (
+	ErrCartNotFound = errors.New("cart not found")
+)
 
 type CartRepository interface {
 	Add(cartID int, itemID int) (*models.CartItem, error)
+	GetCartItem(cartID int, itemID int) (*models.CartItem, error)
 	GetByUserID(userID int) (*models.Cart, error)
 	Update(cartID int, itemID int, quantity uint) (*models.CartItem, error)
 	Delete(cartID int, itemID int) error
@@ -41,9 +44,17 @@ func (r *cartRepository) Add(
 			ItemID:   itemID,
 			Quantity: 1,
 		}
+
 		if err := r.db.Create(&cartItem).Error; err != nil {
 			return nil, err
 		}
+		if err := r.db.
+			Preload("Item").
+			Where("cart_id = ? AND item_id = ?", cartID, itemID).
+			First(&cartItem).Error; err != nil {
+			return nil, err
+		}
+
 		return &cartItem, nil
 	} else if err != nil {
 		return nil, err
@@ -58,6 +69,24 @@ func (r *cartRepository) Add(
 		Preload("Item").
 		Where("cart_id = ? AND item_id = ?", cartID, itemID).
 		First(&cartItem).Error; err != nil {
+		return nil, err
+	}
+
+	return &cartItem, nil
+}
+
+func (r *cartRepository) GetCartItem(cartID int, itemID int) (
+	*models.CartItem, error,
+) {
+	var cartItem models.CartItem
+	err := r.db.
+		Preload("Item").
+		Where("cart_id = ? AND item_id = ?", cartID, itemID).
+		First(&cartItem).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 

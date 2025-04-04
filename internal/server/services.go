@@ -20,7 +20,7 @@ func initServices(
 	itemService := services.NewItemService(itemRepo)
 	userService := services.NewUserService(userRepo)
 	authService := services.NewAuthService(userRepo, tokenStore)
-	cartService := services.NewCartService(cartRepo)
+	cartService := services.NewCartService(cartRepo, itemService)
 
 	return itemService, userService, authService, cartService
 }

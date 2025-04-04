@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+	"fmt"
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/repositories"
 )
@@ -14,16 +16,46 @@ type CartService interface {
 }
 
 type cartService struct {
-	repo repositories.CartRepository
+	repo        repositories.CartRepository
+	itemService ItemService
 }
 
-func NewCartService(repo repositories.CartRepository) CartService {
-	return &cartService{repo: repo}
+func NewCartService(
+	repo repositories.CartRepository,
+	itemService ItemService,
+) CartService {
+	return &cartService{
+		repo:        repo,
+		itemService: itemService,
+	}
 }
 
 func (s *cartService) AddItem(cartID int, itemID int) (
-	*models.CartItem, error,
+	*models.CartItem,
+	error,
 ) {
+	item, err := s.itemService.GetItemByID(itemID)
+	if err != nil {
+		return nil, err
+	}
+	if item == nil {
+		return nil, errors.New("item not found")
+	}
+
+	existingCartItem, err := s.repo.GetCartItem(cartID, itemID)
+	currentQuantity := uint(0)
+	if err == nil && existingCartItem != nil {
+		currentQuantity = existingCartItem.Quantity
+	}
+
+	if currentQuantity+1 > item.Stock {
+		return nil, fmt.Errorf(
+			"available stock is %d and you already have %d in your cart",
+			item.Stock,
+			currentQuantity,
+		)
+	}
+
 	return s.repo.Add(cartID, itemID)
 }
 

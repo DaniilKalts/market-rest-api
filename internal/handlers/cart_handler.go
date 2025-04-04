@@ -91,7 +91,7 @@ func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 	cartItem, err := h.cartService.AddItem(cart.ID, itemID)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -135,7 +135,9 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 	}
 
 	cartItem, err := h.cartService.UpdateItem(
-		cart.ID, itemID, updateItem.Quantity,
+		cart.ID,
+		itemID,
+		updateItem.Quantity,
 	)
 	if err != nil {
 		ctx.Error(err)
