@@ -1,11 +1,12 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
+	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
 
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
@@ -13,10 +14,8 @@ import (
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 )
 
-var (
-	ErrClaimsNotFound = errors.New("claims not found in context")
-	ErrInvalidClaims  = errors.New("claims are not of the expected type")
-	ErrInvalidUserID  = errors.New("invalid user id in token")
+const (
+	MsgProfileDeleted = "profile deleted successfully"
 )
 
 type ProfileHandler struct {
@@ -27,21 +26,24 @@ type ProfileHandler struct {
 func NewProfileHandler(
 	userService services.UserService, authService services.AuthService,
 ) *ProfileHandler {
-	return &ProfileHandler{userService: userService, authService: authService}
+	return &ProfileHandler{
+		userService: userService,
+		authService: authService,
+	}
 }
 
 func getUserIDFromContext(ctx *gin.Context) (int, error) {
 	claimsVal, exists := ctx.Get("claims")
 	if !exists {
-		return 0, ErrClaimsNotFound
+		return 0, errs.ErrClaimsNotFound
 	}
 	claims, ok := claimsVal.(*jwt.Claims)
 	if !ok {
-		return 0, ErrInvalidClaims
+		return 0, errs.ErrInvalidClaims
 	}
 	userID, err := strconv.Atoi(claims.Subject)
 	if err != nil {
-		return 0, ErrInvalidUserID
+		return 0, errs.ErrInvalidTokenSub
 	}
 	return userID, nil
 }
@@ -153,5 +155,5 @@ func (h *ProfileHandler) HandleDeleteProfile(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "profile deleted successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": MsgProfileDeleted})
 }

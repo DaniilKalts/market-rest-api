@@ -1,10 +1,12 @@
 package services
 
 import (
-	"errors"
 	"fmt"
+
+	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
+	repo "github.com/DaniilKalts/market-rest-api/internal/repositories"
+
 	"github.com/DaniilKalts/market-rest-api/internal/models"
-	"github.com/DaniilKalts/market-rest-api/internal/repositories"
 )
 
 type CartService interface {
@@ -16,12 +18,12 @@ type CartService interface {
 }
 
 type cartService struct {
-	repo        repositories.CartRepository
+	repo        repo.CartRepository
 	itemService ItemService
 }
 
 func NewCartService(
-	repo repositories.CartRepository,
+	repo repo.CartRepository,
 	itemService ItemService,
 ) CartService {
 	return &cartService{
@@ -39,7 +41,7 @@ func (s *cartService) AddItem(cartID int, itemID int) (
 		return nil, err
 	}
 	if item == nil {
-		return nil, errors.New("item not found")
+		return nil, errs.ErrItemNotFound
 	}
 
 	existingCartItem, err := s.repo.GetCartItem(cartID, itemID)
@@ -51,17 +53,14 @@ func (s *cartService) AddItem(cartID int, itemID int) (
 	if currentQuantity+1 > item.Stock {
 		return nil, fmt.Errorf(
 			"available stock is %d and you already have %d in your cart",
-			item.Stock,
-			currentQuantity,
+			item.Stock, currentQuantity,
 		)
 	}
 
 	return s.repo.Add(cartID, itemID)
 }
 
-func (s *cartService) GetCartByUserID(userID int) (
-	*models.Cart, error,
-) {
+func (s *cartService) GetCartByUserID(userID int) (*models.Cart, error) {
 	return s.repo.GetByUserID(userID)
 }
 
@@ -70,6 +69,20 @@ func (s *cartService) UpdateItem(
 	itemID int,
 	quantity uint,
 ) (*models.CartItem, error) {
+	item, err := s.itemService.GetItemByID(itemID)
+	if err != nil {
+		return nil, err
+	}
+	if item == nil {
+		return nil, errs.ErrItemNotFound
+	}
+	if quantity > item.Stock {
+		return nil, fmt.Errorf(
+			"requested quantity %d exceeds available stock %d", quantity,
+			item.Stock,
+		)
+	}
+
 	return s.repo.Update(cartID, itemID, quantity)
 }
 

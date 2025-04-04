@@ -2,14 +2,11 @@ package repositories
 
 import (
 	"errors"
+	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
 
 	"gorm.io/gorm"
 
 	"github.com/DaniilKalts/market-rest-api/internal/models"
-)
-
-var (
-	ErrCartNotFound = errors.New("cart not found")
 )
 
 type CartRepository interface {
@@ -104,7 +101,7 @@ func (r *cartRepository) GetByUserID(userID int) (*models.Cart, error) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	} else if err != nil {
-		return nil, ErrCartNotFound
+		return nil, errs.ErrCartNotFound
 	}
 
 	return &cart, err
@@ -121,7 +118,7 @@ func (r *cartRepository) Update(
 		Where("cart_id = ? AND item_id = ?", cartID, itemID).
 		First(&cartItem).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrItemNotFound
+			return nil, errs.ErrItemNotFound
 		}
 		return nil, err
 	}

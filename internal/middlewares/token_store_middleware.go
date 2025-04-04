@@ -1,19 +1,15 @@
 package middlewares
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
+	"github.com/gin-gonic/gin"
+
+	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
+
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 	"github.com/DaniilKalts/market-rest-api/pkg/redis"
-	"github.com/gin-gonic/gin"
-)
-
-var (
-	ErrTokenNotFound            = errors.New("token not found")
-	ErrTokenTypeAssertionFailed = errors.New("token type assertion failed")
-	ErrUnauthorizedToken        = errors.New("unauthorized or invalid token")
 )
 
 func TokenStoreMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
@@ -22,16 +18,17 @@ func TokenStoreMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
 		if !exists {
 			ctx.JSON(
 				http.StatusUnauthorized,
-				gin.H{"error": ErrClaimsNotFound.Error()},
+				gin.H{"error": errs.ErrClaimsNotFound.Error()},
 			)
 			ctx.Abort()
 			return
 		}
+
 		claims, ok := claimsVal.(*jwt.Claims)
 		if !ok {
 			ctx.JSON(
 				http.StatusUnauthorized,
-				gin.H{"error": ErrInvalidClaims.Error()},
+				gin.H{"error": errs.ErrInvalidClaims.Error()},
 			)
 			ctx.Abort()
 			return
@@ -41,7 +38,7 @@ func TokenStoreMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
 		if err != nil {
 			ctx.JSON(
 				http.StatusUnauthorized,
-				gin.H{"error": ErrUnauthorizedToken.Error()},
+				gin.H{"error": errs.ErrUnauthorizedToken.Error()},
 			)
 			ctx.Abort()
 			return
@@ -51,7 +48,7 @@ func TokenStoreMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
 		if !exists {
 			ctx.JSON(
 				http.StatusUnauthorized,
-				gin.H{"error": ErrTokenNotFound.Error()},
+				gin.H{"error": errs.ErrTokenNotFound.Error()},
 			)
 			ctx.Abort()
 			return
@@ -61,7 +58,7 @@ func TokenStoreMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
 		if !ok {
 			ctx.JSON(
 				http.StatusUnauthorized,
-				gin.H{"error": ErrTokenTypeAssertionFailed.Error()},
+				gin.H{"error": errs.ErrTokenTypeFailed.Error()},
 			)
 			ctx.Abort()
 			return
@@ -71,7 +68,7 @@ func TokenStoreMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
 		if err != nil || !valid {
 			ctx.JSON(
 				http.StatusUnauthorized,
-				gin.H{"error": ErrUnauthorizedToken.Error()},
+				gin.H{"error": errs.ErrUnauthorizedToken.Error()},
 			)
 			ctx.Abort()
 			return

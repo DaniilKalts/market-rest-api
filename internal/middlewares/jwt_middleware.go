@@ -1,19 +1,13 @@
 package middlewares
 
 import (
-	"errors"
 	"net/http"
 	"strings"
 
-	"github.com/gin-gonic/gin"
+	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
 
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
-)
-
-var (
-	ErrAuthHeaderMissing         = errors.New("authorization header missing or invalid token")
-	ErrUserIDNotFound            = errors.New("user id not found")
-	ErrUserIDTypeAssertionFailed = errors.New("user id type assertion failed")
+	"github.com/gin-gonic/gin"
 )
 
 func JWTMiddleware() gin.HandlerFunc {
@@ -22,7 +16,7 @@ func JWTMiddleware() gin.HandlerFunc {
 		if !strings.HasPrefix(authHeader, "Bearer ") {
 			ctx.JSON(
 				http.StatusUnauthorized,
-				gin.H{"error": ErrAuthHeaderMissing.Error()},
+				gin.H{"error": errs.ErrAuthHeaderMissing.Error()},
 			)
 			ctx.Abort()
 			return

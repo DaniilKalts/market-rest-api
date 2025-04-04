@@ -6,9 +6,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
+
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
+)
+
+const (
+	MsgUserDeleted = "user deleted successfully"
 )
 
 type UserHandler struct {
@@ -21,11 +27,12 @@ func NewUserHandler(service services.UserService) *UserHandler {
 
 func (h *UserHandler) HandleGetUserByID(ctx *gin.Context) {
 	idStr := ctx.Param("id")
-
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(
+			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
+		)
 		return
 	}
 
@@ -51,29 +58,32 @@ func (h *UserHandler) HandleGetAllUsers(ctx *gin.Context) {
 }
 
 func (h *UserHandler) HandleUpdateUserByID(ctx *gin.Context) {
-	user, err := ginhelpers.GetContextValue[*models.UpdateUser](ctx, "model")
+	updateUser, err := ginhelpers.GetContextValue[*models.UpdateUser](
+		ctx, "model",
+	)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := user.Validate(); err != nil {
+	if err := updateUser.Validate(); err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	idStr := ctx.Param("id")
-
 	userID, err := strconv.Atoi(idStr)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(
+			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
+		)
 		return
 	}
 
-	updatedUser, err := h.service.UpdateUserByID(userID, user)
+	updatedUser, err := h.service.UpdateUserByID(userID, updateUser)
 	if err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -88,19 +98,17 @@ func (h *UserHandler) HandleUpdateUserByID(ctx *gin.Context) {
 		PhoneNumber: updatedUser.PhoneNumber,
 	}
 
-	ctx.JSON(
-		http.StatusOK,
-		userResponse,
-	)
+	ctx.JSON(http.StatusOK, userResponse)
 }
 
 func (h *UserHandler) HandleDeleteUser(ctx *gin.Context) {
 	idStr := ctx.Param("id")
-
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(
+			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
+		)
 		return
 	}
 
@@ -110,5 +118,5 @@ func (h *UserHandler) HandleDeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "user deleted successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": MsgUserDeleted})
 }

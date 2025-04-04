@@ -5,10 +5,10 @@ import (
 
 	"gorm.io/gorm"
 
+	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
+
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 )
-
-var ErrItemNotFound = errors.New("item not found")
 
 type ItemRepository interface {
 	Create(item *models.Item) error
@@ -36,7 +36,7 @@ func (r *itemRepository) GetByID(id int) (*models.Item, error) {
 	err := r.db.First(&item, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrItemNotFound
+			return nil, errs.ErrItemNotFound
 		}
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (r *itemRepository) Delete(id int) error {
 		return result.Error
 	}
 	if result.RowsAffected == 0 {
-		return ErrItemNotFound
+		return errs.ErrItemNotFound
 	}
 
 	return nil

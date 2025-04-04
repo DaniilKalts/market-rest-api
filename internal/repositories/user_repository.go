@@ -5,11 +5,9 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/DaniilKalts/market-rest-api/internal/models"
-)
+	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
 
-var (
-	ErrUserNotFound = errors.New("user not found")
+	"github.com/DaniilKalts/market-rest-api/internal/models"
 )
 
 type UserRepository interface {
@@ -39,7 +37,7 @@ func (r *userRepository) GetByID(id int) (*models.User, error) {
 	err := r.db.Preload("Cart.Items.Item").First(&user, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrUserNotFound
+			return nil, errs.ErrUserNotFound
 		}
 		return nil, err
 	}
@@ -57,12 +55,12 @@ func (r *userRepository) GetByEmail(email string) (*models.User, error) {
 	err := r.db.Where("email = ?", email).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrUserNotFound
+			return nil, errs.ErrUserNotFound
 		}
 		return nil, err
 	}
 
-	return &user, err
+	return &user, nil
 }
 
 func (r *userRepository) GetAll() ([]models.User, error) {
@@ -91,7 +89,7 @@ func (r *userRepository) Delete(id int) error {
 		return res.Error
 	}
 	if res.RowsAffected == 0 {
-		return ErrUserNotFound
+		return errs.ErrUserNotFound
 	}
 
 	return nil

@@ -6,12 +6,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
+
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
 )
 
-var (
+const (
 	MsgItemDeleted = "item deleted successfully"
 )
 
@@ -42,11 +44,12 @@ func (h *ItemHandler) HandleCreateItem(ctx *gin.Context) {
 
 func (h *ItemHandler) HandleGetItemByID(ctx *gin.Context) {
 	idStr := ctx.Param("id")
-
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(
+			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
+		)
 		return
 	}
 
@@ -82,11 +85,12 @@ func (h *ItemHandler) HandleUpdateItem(ctx *gin.Context) {
 	}
 
 	idStr := ctx.Param("id")
-
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid item id"})
+		ctx.JSON(
+			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
+		)
 		return
 	}
 
@@ -102,18 +106,20 @@ func (h *ItemHandler) HandleUpdateItem(ctx *gin.Context) {
 
 func (h *ItemHandler) HandleDeleteItem(ctx *gin.Context) {
 	idStr := ctx.Param("id")
-
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(
+			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
+		)
 		return
 	}
+
 	if err := h.service.DeleteItem(id); err != nil {
 		ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "item deleted successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": MsgItemDeleted})
 }

@@ -1,18 +1,12 @@
 package middlewares
 
 import (
-	"errors"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
 
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
-)
-
-var (
-	ErrClaimsNotFound  = errors.New("claims not found")
-	ErrInvalidClaims   = errors.New("invalid claims")
-	ErrAdminAccessOnly = errors.New("admin access only")
+	"github.com/gin-gonic/gin"
 )
 
 func AdminMiddleware() gin.HandlerFunc {
@@ -21,7 +15,7 @@ func AdminMiddleware() gin.HandlerFunc {
 		if !exists {
 			ctx.JSON(
 				http.StatusUnauthorized,
-				gin.H{"error": ErrClaimsNotFound.Error()},
+				gin.H{"error": errs.ErrClaimsNotFound.Error()},
 			)
 			ctx.Abort()
 			return
@@ -31,7 +25,7 @@ func AdminMiddleware() gin.HandlerFunc {
 		if !ok {
 			ctx.JSON(
 				http.StatusUnauthorized,
-				gin.H{"error": ErrInvalidClaims.Error()},
+				gin.H{"error": errs.ErrInvalidClaims.Error()},
 			)
 			ctx.Abort()
 			return
@@ -39,8 +33,7 @@ func AdminMiddleware() gin.HandlerFunc {
 
 		if claims.Role != "admin" {
 			ctx.JSON(
-				http.StatusForbidden,
-				gin.H{"error": ErrAdminAccessOnly.Error()},
+				http.StatusForbidden, gin.H{"error": errs.ErrAdminOnly.Error()},
 			)
 			ctx.Abort()
 			return

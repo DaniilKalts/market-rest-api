@@ -1,22 +1,20 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
+	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
 
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
 )
 
-var (
-	ErrCartNotFound = errors.New("cart not found")
-	ErrItemNotFound = errors.New("item not found")
-	ErrInvalidID    = errors.New("invalid id parameter")
-	MsgCartCleared  = "cart cleared successfully"
+const (
+	MsgCartCleared = "cart cleared successfully"
 )
 
 func getCart(ctx *gin.Context, cartService services.CartService) (
@@ -31,7 +29,7 @@ func getCart(ctx *gin.Context, cartService services.CartService) (
 		return nil, err
 	}
 	if cart == nil {
-		return nil, ErrCartNotFound
+		return nil, errs.ErrCartNotFound
 	}
 	return cart, nil
 }
@@ -73,7 +71,9 @@ func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidID.Error()})
+		ctx.JSON(
+			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
+		)
 		return
 	}
 
@@ -84,7 +84,9 @@ func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 		return
 	}
 	if item == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": ErrItemNotFound.Error()})
+		ctx.JSON(
+			http.StatusNotFound, gin.H{"error": errs.ErrItemNotFound.Error()},
+		)
 		return
 	}
 
@@ -110,7 +112,9 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidID.Error()})
+		ctx.JSON(
+			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
+		)
 		return
 	}
 
@@ -121,7 +125,9 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 		return
 	}
 	if item == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": ErrItemNotFound.Error()})
+		ctx.JSON(
+			http.StatusNotFound, gin.H{"error": errs.ErrItemNotFound.Error()},
+		)
 		return
 	}
 
@@ -135,9 +141,7 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 	}
 
 	cartItem, err := h.cartService.UpdateItem(
-		cart.ID,
-		itemID,
-		updateItem.Quantity,
+		cart.ID, itemID, updateItem.Quantity,
 	)
 	if err != nil {
 		ctx.Error(err)
@@ -160,7 +164,9 @@ func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
 		ctx.Error(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidID.Error()})
+		ctx.JSON(
+			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
+		)
 		return
 	}
 
@@ -171,7 +177,9 @@ func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
 		return
 	}
 	if item == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": ErrItemNotFound.Error()})
+		ctx.JSON(
+			http.StatusNotFound, gin.H{"error": errs.ErrItemNotFound.Error()},
+		)
 		return
 	}
 
