@@ -10,7 +10,7 @@ func initServices(
 	itemRepo repositories.ItemRepository,
 	userRepo repositories.UserRepository,
 	cartRepo repositories.CartRepository,
-	tokenStore *redis.TokenStore,
+	tokenStore redis.TokenStore,
 ) (
 	services.ItemService,
 	services.UserService,

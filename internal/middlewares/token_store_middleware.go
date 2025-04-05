@@ -12,7 +12,7 @@ import (
 	"github.com/DaniilKalts/market-rest-api/pkg/redis"
 )
 
-func TokenStoreMiddleware(tokenStore *redis.TokenStore) gin.HandlerFunc {
+func TokenStoreMiddleware(tokenStore redis.TokenStore) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		claimsVal, exists := ctx.Get("claims")
 		if !exists {

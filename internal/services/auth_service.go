@@ -2,11 +2,10 @@ package services
 
 import (
 	"errors"
+	"github.com/DaniilKalts/market-rest-api/internal/repositories"
 	"strconv"
 
 	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
-	repo "github.com/DaniilKalts/market-rest-api/internal/repositories"
-
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 	"github.com/DaniilKalts/market-rest-api/pkg/redis"
@@ -20,12 +19,12 @@ type AuthService interface {
 }
 
 type authService struct {
-	repo       repo.UserRepository
-	tokenStore *redis.TokenStore
+	repo       repositories.UserRepository
+	tokenStore redis.TokenStore
 }
 
 func NewAuthService(
-	repo repo.UserRepository, tokenStore *redis.TokenStore,
+	repo repositories.UserRepository, tokenStore redis.TokenStore,
 ) AuthService {
 	return &authService{
 		repo:       repo,

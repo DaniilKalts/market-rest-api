@@ -3,7 +3,6 @@ package server
 import (
 	"github.com/DaniilKalts/market-rest-api/internal/handlers"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
-	"github.com/DaniilKalts/market-rest-api/pkg/redis"
 )
 
 func initHandlers(
@@ -11,7 +10,6 @@ func initHandlers(
 	userService services.UserService,
 	authService services.AuthService,
 	cartService services.CartService,
-	tokenStore *redis.TokenStore,
 ) (
 	*handlers.ItemHandler,
 	*handlers.UserHandler,
@@ -21,7 +19,7 @@ func initHandlers(
 ) {
 	itemHandler := handlers.NewItemHandler(itemService)
 	userHandler := handlers.NewUserHandler(userService)
-	authHandler := handlers.NewAuthHandler(authService, tokenStore)
+	authHandler := handlers.NewAuthHandler(authService)
 	profileHandler := handlers.NewProfileHandler(userService, authService)
 	cartHandler := handlers.NewCartHandler(itemService, cartService)
 

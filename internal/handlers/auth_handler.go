@@ -12,7 +12,6 @@ import (
 	"github.com/DaniilKalts/market-rest-api/internal/services"
 	"github.com/DaniilKalts/market-rest-api/pkg/ginhelpers"
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
-	"github.com/DaniilKalts/market-rest-api/pkg/redis"
 )
 
 type AuthHandler struct {
@@ -20,7 +19,7 @@ type AuthHandler struct {
 }
 
 func NewAuthHandler(
-	authService services.AuthService, tokenStore *redis.TokenStore,
+	authService services.AuthService,
 ) *AuthHandler {
 	return &AuthHandler{service: authService}
 }

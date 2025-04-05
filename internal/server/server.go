@@ -24,7 +24,6 @@ func SetupServer() *http.Server {
 		userService,
 		authService,
 		cartService,
-		tokenStore,
 	)
 
 	port := config.Config.Server.Port
