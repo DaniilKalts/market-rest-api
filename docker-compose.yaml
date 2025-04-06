@@ -1,6 +1,12 @@
+version: "3.9"
+
 services:
   go:
-    build: .
+    container_name: market-rest-api
+    build:
+      context: .
+      cache_from:
+        - market-rest-api:latest
     ports:
       - "${PORT:-8080}:8080"
     env_file:
@@ -12,6 +18,7 @@ services:
         condition: service_healthy
 
   redis:
+    container_name: market-rest-api-redis
     image: redis:latest
     ports:
       - "6379:6379"
@@ -20,15 +27,14 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     command:
-      [
-        "redis-server",
-        "--requirepass",
-        "${REDIS_PASSWORD}",
-        "--appendonly",
-        "yes",
-      ]
+      - "redis-server"
+      - "--requirepass"
+      - "${REDIS_PASSWORD}"
+      - "--appendonly"
+      - "yes"
 
   redis-commander:
+    container_name: market-rest-api-redis-commander
     image: rediscommander/redis-commander:latest
     ports:
       - "8081:8081"
@@ -40,7 +46,8 @@ services:
       - redis
 
   postgres:
-    image: postgres:17.4-alpine3.21
+    container_name: market-rest-api-postgres
+    image: postgres:latest
     env_file:
       - .env
     environment:
@@ -58,7 +65,8 @@ services:
       retries: 5
 
   pgAdmin:
-    image: dpage/pgadmin4
+    container_name: market-rest-api-pgadmin
+    image: dpage/pgadmin4:latest
     env_file:
       - .env
     environment:
