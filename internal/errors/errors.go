@@ -21,7 +21,6 @@ var (
 	ErrTokenParsingFailed  = errors.New("token parsing failed")
 	ErrInvalidTokenSub     = errors.New("invalid token subject")
 	ErrTokenDeletionFailed = errors.New("token deletion failed")
-	ErrTokenSaveFailed     = errors.New("token save failed")
 )
 
 // Handler errors and messages

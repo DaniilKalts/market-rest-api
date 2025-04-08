@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
+
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 	"github.com/DaniilKalts/market-rest-api/pkg/redis"
@@ -151,7 +152,7 @@ func (s *authService) RefreshTokens(refreshToken string) (
 	if err := s.tokenStore.SaveJWTokens(
 		userID, accessToken, newRefreshToken,
 	); err != nil {
-		return "", "", errs.ErrTokenSaveFailed
+		return "", "", errs.ErrTokenStorage
 	}
 
 	return accessToken, newRefreshToken, nil
