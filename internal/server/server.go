@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/DaniilKalts/market-rest-api/internal/config"
 )
@@ -35,8 +36,9 @@ func SetupServer() *http.Server {
 	)
 
 	srv := &http.Server{
-		Addr:    ":" + config.Config.Server.Port,
-		Handler: router,
+		Addr:              ":" + config.Config.Server.Port,
+		Handler:           router,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
 	return srv

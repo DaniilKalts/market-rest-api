@@ -16,11 +16,12 @@ var (
 	ErrUserVerifyFailed   = errors.New("user verification failed")
 	ErrInvalidCreds       = errors.New("invalid credentials")
 
-	ErrTokenGeneration     = errors.New("token generation failed")
-	ErrTokenStorage        = errors.New("token storage failed")
-	ErrTokenParsingFailed  = errors.New("token parsing failed")
-	ErrInvalidTokenSub     = errors.New("invalid token subject")
-	ErrTokenDeletionFailed = errors.New("token deletion failed")
+	ErrTokenGeneration      = errors.New("token generation failed")
+	ErrTokenStorage         = errors.New("token storage failed")
+	ErrTokenParsingFailed   = errors.New("token parsing failed")
+	ErrInvalidTokenSub      = errors.New("invalid token subject")
+	ErrTokenDeletionFailed  = errors.New("token deletion failed")
+	ErrTokenValidityTooHigh = errors.New("token validity duration is too high")
 )
 
 // Handler errors and messages

@@ -4,7 +4,10 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
+	"math"
 	"time"
+
+	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
 
 	"github.com/DaniilKalts/market-rest-api/internal/config"
 	"github.com/golang-jwt/jwt/v5"
@@ -34,12 +37,20 @@ func GenerateJWT(subject string, minutes uint, role string) (string, error) {
 	}
 
 	issuedAt := time.Now()
+
+	maxMinutes := uint(math.MaxInt64 / int64(time.Minute))
+	if minutes > maxMinutes {
+		return "", errs.ErrTokenValidityTooHigh
+	}
+
+	validity := time.Minute * time.Duration(minutes)
+
 	claims := Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    issuer,
 			Subject:   subject,
 			IssuedAt:  jwt.NewNumericDate(issuedAt),
-			ExpiresAt: jwt.NewNumericDate(issuedAt.Add(time.Duration(minutes) * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(issuedAt.Add(validity)),
 			ID:        tokenID,
 		},
 		Role: role,
@@ -58,12 +69,14 @@ func GenerateJWT(subject string, minutes uint, role string) (string, error) {
 func ParseJWT(tokenString string) (*Claims, error) {
 	claims := &Claims{}
 
-	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("invalid signing method")
-		}
-		return []byte(config.Config.Server.Secret), nil
-	})
+	_, err := jwt.ParseWithClaims(
+		tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, errors.New("invalid signing method")
+			}
+			return []byte(config.Config.Server.Secret), nil
+		},
+	)
 	if err != nil {
 		return claims, err
 	}
