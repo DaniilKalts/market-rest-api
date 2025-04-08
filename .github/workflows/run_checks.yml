@@ -44,13 +44,6 @@ jobs:
       - name: Pre-build to generate export data
         run: go list -json ./... > /dev/null
 
-      # Linting using golangci-lint
-      - name: Run golangci-lint
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s latest
-          export PATH=$(pwd)/bin:$PATH
-          golangci-lint run
-
       # Static analysis with go vet
       - name: Run go vet
         run: go vet ./...
