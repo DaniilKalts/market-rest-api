@@ -25,14 +25,16 @@ jobs:
 
       redis:
         image: redis:latest
-        env:
-          REDIS_PASSWORD: yourpassword
         ports:
           - 6379:6379
         options: >-
-          --entrypoint redis-server redis 
+          --entrypoint "redis-server" 
           --requirepass yourpassword 
-          --appendonly yes
+          --appendonly yes 
+          --health-cmd "redis-cli -a yourpassword ping" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=5
 
     steps:
       - name: Checkout code
@@ -52,6 +54,12 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+
+      - name: Load env vars from .env.ci
+        run: |
+          cp .env.ci .env
+          echo ".env loaded for tests"
+        shell: bash
 
       - name: Check formatting
         run: |
@@ -81,9 +89,6 @@ jobs:
         run: gosec ./...
         env:
           PATH: ${{ env.HOME }}/go/bin:${{ env.PATH }}
-
-      - name: Setup .env for integration tests
-        run: cp .env.ci .env
 
       - name: Run unit tests (services)
         run: |
