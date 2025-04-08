@@ -15,7 +15,7 @@ jobs:
         with:
           fetch-depth: 0  # ensures full repo history
 
-      # Setup Go environment
+      # Setup Go environment (using Go 1.21 as before)
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -44,15 +44,23 @@ jobs:
       - name: Pre-build to generate export data
         run: go list -json ./... > /dev/null
 
+      # Install and run golangci-lint using go install
+      - name: Run golangci-lint
+        run: |
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+          # Ensure the binary is in PATH
+          export PATH="$HOME/go/bin:$PATH"
+          golangci-lint run
+
       # Static analysis with go vet
       - name: Run go vet
         run: go vet ./...
 
-      # Security analysis with gosec
+      # Install and run gosec using go install
       - name: Run gosec
         run: |
-          curl -sSfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh
-          export PATH=$(pwd)/bin:$PATH
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          export PATH="$HOME/go/bin:$PATH"
           gosec ./...
 
       # Run unit tests with coverage for services
