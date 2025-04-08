@@ -13,13 +13,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # ensures full repo history
+          fetch-depth: 0  # ensures full repository history
 
-      # Setup Go environment (using Go 1.21 as before)
+      # Setup Go environment using Go 1.24
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.21'
+          go-version: '1.24'
 
       # Cache Go modules to speed up builds
       - name: Cache Go modules
@@ -44,22 +44,27 @@ jobs:
       - name: Pre-build to generate export data
         run: go list -json ./... > /dev/null
 
-      # Install and run golangci-lint using go install
+      # Install golangci-lint using go install
+      - name: Install golangci-lint
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+      # Run golangci-lint using the installed binary
       - name: Run golangci-lint
         run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-          # Ensure the binary is in PATH
           export PATH="$HOME/go/bin:$PATH"
           golangci-lint run
 
-      # Static analysis with go vet
+      # Run static analysis with go vet
       - name: Run go vet
         run: go vet ./...
 
-      # Install and run gosec using go install
+      # Install gosec using go install
+      - name: Install gosec
+        run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+      # Run security analysis with gosec
       - name: Run gosec
         run: |
-          go install github.com/securego/gosec/v2/cmd/gosec@latest
           export PATH="$HOME/go/bin:$PATH"
           gosec ./...
 
