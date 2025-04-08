@@ -70,7 +70,7 @@ func Load() {
 		},
 	}
 
-	endFields := map[string]string{
+	envFields := map[string]string{
 		"PORT":               Config.Server.Port,
 		"SECRET":             Config.Server.Secret,
 		"BASE_URL":           Config.Server.BaseURL,
@@ -86,14 +86,18 @@ func Load() {
 	}
 
 	missing := []string{}
-	for key, value := range endFields {
+	for key, value := range envFields {
 		if value == "" {
 			missing = append(missing, key)
 		}
 	}
 
 	if len(missing) > 0 {
-		logger.Error("Missing required environment variables: " + strings.Join(missing, ", "))
+		logger.Error(
+			"Missing required environment variables: " + strings.Join(
+				missing, ", ",
+			),
+		)
 		os.Exit(1)
 	}
 }
