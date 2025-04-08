@@ -1,0 +1,8 @@
+version: "1"
+
+run:
+  timeout: 2m
+
+linters:
+  disable:
+    - goanalysis_metalinter
