@@ -26,11 +26,6 @@ func SetupServer() *http.Server {
 		cartService,
 	)
 
-	port := config.Config.Server.Port
-	if port == "" {
-		port = "8080"
-	}
-
 	router := setupRouter(
 		itemHandler,
 		userHandler,

@@ -51,7 +51,7 @@ func NewCartHandler(
 func (h *CartHandler) HandleGetCart(ctx *gin.Context) {
 	cart, err := getCart(ctx, h.cartService)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -62,7 +62,7 @@ func (h *CartHandler) HandleGetCart(ctx *gin.Context) {
 func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 	cart, err := getCart(ctx, h.cartService)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -70,7 +70,7 @@ func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 	itemIDStr := ctx.Param("id")
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(
 			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
 		)
@@ -79,7 +79,7 @@ func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 
 	item, err := h.itemService.GetItemByID(itemID)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -92,7 +92,7 @@ func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 
 	cartItem, err := h.cartService.AddItem(cart.ID, itemID)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -103,7 +103,7 @@ func (h *CartHandler) HandleAddItem(ctx *gin.Context) {
 func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 	cart, err := getCart(ctx, h.cartService)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -111,7 +111,7 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 	itemIDStr := ctx.Param("id")
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(
 			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
 		)
@@ -120,7 +120,7 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 
 	item, err := h.itemService.GetItemByID(itemID)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -135,7 +135,7 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 		ctx, "model",
 	)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -144,7 +144,7 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 		cart.ID, itemID, updateItem.Quantity,
 	)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -155,7 +155,7 @@ func (h *CartHandler) HandleUpdateItem(ctx *gin.Context) {
 func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
 	cart, err := getCart(ctx, h.cartService)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -163,7 +163,7 @@ func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
 	itemIDStr := ctx.Param("id")
 	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(
 			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
 		)
@@ -172,7 +172,7 @@ func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
 
 	item, err := h.itemService.GetItemByID(itemID)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -184,7 +184,7 @@ func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
 	}
 
 	if err := h.cartService.DeleteItem(cart.ID, itemID); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -195,13 +195,13 @@ func (h *CartHandler) HandleDeleteItem(ctx *gin.Context) {
 func (h *CartHandler) HandleClearCart(ctx *gin.Context) {
 	cart, err := getCart(ctx, h.cartService)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := h.cartService.ClearCart(cart.ID); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

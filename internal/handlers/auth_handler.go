@@ -27,20 +27,20 @@ func NewAuthHandler(
 func (h *AuthHandler) HandleRegister(ctx *gin.Context) {
 	req, err := ginhelpers.GetContextValue[*models.RegisterUser](ctx, "model")
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := req.Validate(); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	accessToken, refreshToken, err := h.service.RegisterUser(req)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		if errors.Is(err, errs.ErrUserExists) {
 			ctx.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		} else {
@@ -52,7 +52,7 @@ func (h *AuthHandler) HandleRegister(ctx *gin.Context) {
 	if err := jwt.SetAuthCookies(
 		ctx.Writer, accessToken, refreshToken,
 	); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -68,7 +68,7 @@ func (h *AuthHandler) HandleRegister(ctx *gin.Context) {
 func (h *AuthHandler) HandleLogin(ctx *gin.Context) {
 	req, err := ginhelpers.GetContextValue[*models.LoginUser](ctx, "model")
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -77,7 +77,7 @@ func (h *AuthHandler) HandleLogin(ctx *gin.Context) {
 		req.Email, req.Password,
 	)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
@@ -85,7 +85,7 @@ func (h *AuthHandler) HandleLogin(ctx *gin.Context) {
 	if err := jwt.SetAuthCookies(
 		ctx.Writer, accessToken, refreshToken,
 	); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -101,26 +101,26 @@ func (h *AuthHandler) HandleLogin(ctx *gin.Context) {
 func (h *AuthHandler) HandleLogout(ctx *gin.Context) {
 	accessToken, err := ctx.Cookie("access_token")
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	refreshToken, err := ctx.Cookie("refresh_token")
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := h.service.LogoutUser(accessToken, refreshToken); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := jwt.DeleteAuthCookies(ctx.Writer); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -131,14 +131,14 @@ func (h *AuthHandler) HandleLogout(ctx *gin.Context) {
 func (h *AuthHandler) HandleRefreshToken(ctx *gin.Context) {
 	refreshToken, err := ctx.Cookie("refresh_token")
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	accessToken, newRefreshToken, err := h.service.RefreshTokens(refreshToken)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
@@ -146,7 +146,7 @@ func (h *AuthHandler) HandleRefreshToken(ctx *gin.Context) {
 	if err := jwt.SetAuthCookies(
 		ctx.Writer, accessToken, newRefreshToken,
 	); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

@@ -29,7 +29,7 @@ func (h *UserHandler) HandleGetUserByID(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(
 			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
 		)
@@ -38,7 +38,7 @@ func (h *UserHandler) HandleGetUserByID(ctx *gin.Context) {
 
 	user, err := h.service.GetUserByID(id)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -49,7 +49,7 @@ func (h *UserHandler) HandleGetUserByID(ctx *gin.Context) {
 func (h *UserHandler) HandleGetAllUsers(ctx *gin.Context) {
 	users, err := h.service.GetAllUsers()
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -62,13 +62,13 @@ func (h *UserHandler) HandleUpdateUserByID(ctx *gin.Context) {
 		ctx, "model",
 	)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := updateUser.Validate(); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -76,7 +76,7 @@ func (h *UserHandler) HandleUpdateUserByID(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	userID, err := strconv.Atoi(idStr)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(
 			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
 		)
@@ -85,7 +85,7 @@ func (h *UserHandler) HandleUpdateUserByID(ctx *gin.Context) {
 
 	updatedUser, err := h.service.UpdateUserByID(userID, updateUser)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -105,7 +105,7 @@ func (h *UserHandler) HandleDeleteUser(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(
 			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
 		)
@@ -113,7 +113,7 @@ func (h *UserHandler) HandleDeleteUser(ctx *gin.Context) {
 	}
 
 	if err := h.service.DeleteUserByID(id); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}

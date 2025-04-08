@@ -51,14 +51,14 @@ func getUserIDFromContext(ctx *gin.Context) (int, error) {
 func (h *ProfileHandler) HandleGetProfile(ctx *gin.Context) {
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	user, err := h.userService.GetUserByID(userID)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -77,7 +77,7 @@ func (h *ProfileHandler) HandleGetProfile(ctx *gin.Context) {
 func (h *ProfileHandler) HandleUpdateProfile(ctx *gin.Context) {
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
@@ -86,20 +86,20 @@ func (h *ProfileHandler) HandleUpdateProfile(ctx *gin.Context) {
 		ctx, "model",
 	)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := updateUser.Validate(); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	updatedUser, err := h.userService.UpdateUserByID(userID, updateUser)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -118,39 +118,39 @@ func (h *ProfileHandler) HandleUpdateProfile(ctx *gin.Context) {
 func (h *ProfileHandler) HandleDeleteProfile(ctx *gin.Context) {
 	accessToken, err := ctx.Cookie("access_token")
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	refreshToken, err := ctx.Cookie("refresh_token")
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := h.authService.LogoutUser(accessToken, refreshToken); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	userID, err := getUserIDFromContext(ctx)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := h.userService.DeleteUserByID(userID); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := jwt.DeleteAuthCookies(ctx.Writer); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

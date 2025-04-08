@@ -11,7 +11,16 @@ import (
 )
 
 func migrate(db *gorm.DB) {
-	db.AutoMigrate(&models.Item{}, &models.User{}, &models.Cart{}, &models.CartItem{})
+	modelsToMigrate := []interface{}{
+		&models.Item{},
+		&models.User{},
+		&models.Cart{},
+		&models.CartItem{},
+	}
+
+	if err := db.AutoMigrate(modelsToMigrate...); err != nil {
+		logger.Error("Failed to auto migrate models: " + err.Error())
+	}
 
 	var admin models.User
 

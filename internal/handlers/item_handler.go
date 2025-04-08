@@ -28,13 +28,13 @@ func NewItemHandler(service services.ItemService) *ItemHandler {
 func (h *ItemHandler) HandleCreateItem(ctx *gin.Context) {
 	item, err := ginhelpers.GetContextValue[*models.Item](ctx, "model")
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if err := h.service.CreateItem(item); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -46,7 +46,7 @@ func (h *ItemHandler) HandleGetItemByID(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(
 			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
 		)
@@ -55,7 +55,7 @@ func (h *ItemHandler) HandleGetItemByID(ctx *gin.Context) {
 
 	item, err := h.service.GetItemByID(id)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -66,7 +66,7 @@ func (h *ItemHandler) HandleGetItemByID(ctx *gin.Context) {
 func (h *ItemHandler) HandleGetAllItems(ctx *gin.Context) {
 	items, err := h.service.GetAllItems()
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -79,7 +79,7 @@ func (h *ItemHandler) HandleUpdateItem(ctx *gin.Context) {
 		ctx, "model",
 	)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -87,7 +87,7 @@ func (h *ItemHandler) HandleUpdateItem(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(
 			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
 		)
@@ -96,7 +96,7 @@ func (h *ItemHandler) HandleUpdateItem(ctx *gin.Context) {
 
 	updatedItem, err := h.service.UpdateItem(id, updateItemDTO)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -108,7 +108,7 @@ func (h *ItemHandler) HandleDeleteItem(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(
 			http.StatusBadRequest, gin.H{"error": errs.ErrInvalidID.Error()},
 		)
@@ -116,7 +116,7 @@ func (h *ItemHandler) HandleDeleteItem(ctx *gin.Context) {
 	}
 
 	if err := h.service.DeleteItem(id); err != nil {
-		ctx.Error(err)
+		_ = ctx.Error(err)
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
