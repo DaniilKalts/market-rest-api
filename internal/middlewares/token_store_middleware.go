@@ -12,6 +12,9 @@ import (
 	"github.com/DaniilKalts/market-rest-api/pkg/redis"
 )
 
+// Dummy usage to avoid unused import errors.
+var _ = jwt.Claims{}
+
 func TokenStoreMiddleware(tokenStore redis.TokenStore) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		claimsVal, exists := ctx.Get("claims")

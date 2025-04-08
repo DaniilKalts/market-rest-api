@@ -3,11 +3,15 @@ package middlewares
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+
 	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
 
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
-	"github.com/gin-gonic/gin"
 )
+
+// Dummy usage to avoid unused import errors.
+var _ = jwt.Claims{}
 
 func AdminMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
