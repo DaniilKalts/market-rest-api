@@ -39,3 +39,14 @@ var (
 	ErrTokenTypeFailed   = errors.New("token type assertion failed")
 	ErrUnauthorizedToken = errors.New("unauthorized or invalid token")
 )
+
+// Connection Errors (for external dependencies)
+var (
+	// Redis connection errors
+	ErrInvalidRedisDSN       = errors.New("invalid Redis DSN")
+	ErrRedisConnectionFailed = errors.New("failed to connect to Redis")
+
+	// Postgres connection errors
+	ErrInvalidPostgresDSN       = errors.New("invalid Postgres DSN")
+	ErrPostgresConnectionFailed = errors.New("failed to connect to Postgres")
+)

@@ -9,19 +9,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # ensures full repository history
+          fetch-depth: 0
 
-      # Setup Go environment using Go 1.24
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
           go-version: '1.24'
 
-      # Cache Go modules to speed up builds
       - name: Cache Go modules
         uses: actions/cache@v3
         with:
@@ -30,44 +27,54 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      # Formatting check using gofmt
-      - name: Check formatting with gofmt
+      - name: Check formatting
         run: |
-          unformatted=$(gofmt -l .)
-          if [ -n "$unformatted" ]; then
-            echo "The following files are not formatted properly:"
-            echo "$unformatted"
+          if [ -n "$(gofmt -l .)" ]; then
+            echo "The following files are not properly formatted:"
+            gofmt -l .
             exit 1
           fi
 
-      # Pre-build step: force generation of export data for packages
-      - name: Pre-build to generate export data
+      - name: Pre-build
         run: go list -json ./... > /dev/null
 
-      # Install golangci-lint using go install
-      - name: Install golangci-lint
-        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-
-      # Run golangci-lint using the installed binary
-      - name: Run golangci-lint
+      - name: Install tools
         run: |
-          export PATH="$HOME/go/bin:$PATH"
-          golangci-lint run
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
 
-      # Run static analysis with go vet
-      - name: Run go vet
+      - name: Lint
+        run: golangci-lint run
+        env:
+          PATH: ${{ env.HOME }}/go/bin:${{ env.PATH }}
+
+      - name: Static analysis
         run: go vet ./...
 
-      # Install gosec using go install
-      - name: Install gosec
-        run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+      - name: Security check
+        run: gosec ./...
+        env:
+          PATH: ${{ env.HOME }}/go/bin:${{ env.PATH }}
 
-      # Run security analysis with gosec
-      - name: Run gosec
+      - name: Setup .env for integration tests
+        run: cp .env.example .env
+
+      - name: Run unit tests (services)
         run: |
-          export PATH="$HOME/go/bin:$PATH"
-          gosec ./...
+          cd internal/services
+          go test -v -coverprofile=coverage-unit.out
 
-      # Run unit tests with coverage for services
-      - name: Run unit tests for services
-        run: cd internal/services && go test -v -coverprofile=coverage.out
+      - name: Run integration tests
+        run: go test -v -tags=integration ./integration -coverprofile=coverage-integration.out
+
+      - name: Merge coverage
+        run: |
+          echo "mode: set" > coverage.txt
+          tail -n +2 internal/services/coverage-unit.out >> coverage.txt
+          tail -n +2 integration/coverage-integration.out >> coverage.txt
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.txt
