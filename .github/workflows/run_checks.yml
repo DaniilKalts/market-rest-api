@@ -8,6 +8,32 @@ jobs:
   run-checks:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: yourpassword
+          POSTGRES_DB: market
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      redis:
+        image: redis:latest
+        env:
+          REDIS_PASSWORD: yourpassword
+        ports:
+          - 6379:6379
+        options: >-
+          --entrypoint redis-server redis 
+          --requirepass yourpassword 
+          --appendonly yes
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -57,7 +83,7 @@ jobs:
           PATH: ${{ env.HOME }}/go/bin:${{ env.PATH }}
 
       - name: Setup .env for integration tests
-        run: cp .env.example .env
+        run: cp .env.ci .env
 
       - name: Run unit tests (services)
         run: |
