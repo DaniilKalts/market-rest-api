@@ -1,0 +1,57 @@
+name: Run Checks
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  run-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Setup Go environment and cache modules
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.18'
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      # Formatting check
+      - name: Check formatting with gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "The following files are not formatted properly:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      # Linting using golangci-lint
+      - name: Run golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s latest
+          golangci-lint run
+
+      # Static analysis with go vet
+      - name: Run go vet
+        run: go vet ./...
+
+      # Security analysis with gosec
+      - name: Run gosec
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh
+          gosec ./...
+
+      # Run unit tests with coverage
+      - name: Run unit tests for services
+        run: cd internal/services && go test -v -coverprofile=coverage.out
