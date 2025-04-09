@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "mode: set" > coverage.txt
           tail -n +2 internal/services/coverage-unit.out >> coverage.txt
-          tail -n +2 integration/coverage-integration.out >> coverage.txt
+          tail -n +2 coverage-integration.out >> coverage.txt
 
       - name: Shutdown docker-compose services
         run: docker compose down
