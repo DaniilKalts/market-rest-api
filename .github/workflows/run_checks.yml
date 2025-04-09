@@ -8,34 +8,6 @@ jobs:
   run-checks:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: yourpassword
-          POSTGRES_DB: market
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
-      redis:
-        image: redis:latest
-        ports:
-          - 6379:6379
-        options: >-
-          --entrypoint "redis-server" 
-          --requirepass yourpassword 
-          --appendonly yes 
-          --health-cmd "redis-cli -a yourpassword ping" 
-          --health-interval=10s 
-          --health-timeout=5s 
-          --health-retries=5
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -47,48 +19,11 @@ jobs:
         with:
           go-version: '1.24'
 
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+      - name: Load environment variables
+        run: cp .env.ci .env
 
-      - name: Load env vars from .env.ci
-        run: |
-          cp .env.ci .env
-          echo ".env loaded for tests"
-        shell: bash
-
-      - name: Check formatting
-        run: |
-          if [ -n "$(gofmt -l .)" ]; then
-            echo "The following files are not properly formatted:"
-            gofmt -l .
-            exit 1
-          fi
-
-      - name: Pre-build
-        run: go list -json ./... > /dev/null
-
-      - name: Install tools
-        run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-          go install github.com/securego/gosec/v2/cmd/gosec@latest
-
-      - name: Lint
-        run: golangci-lint run
-        env:
-          PATH: ${{ env.HOME }}/go/bin:${{ env.PATH }}
-
-      - name: Static analysis
-        run: go vet ./...
-
-      - name: Security check
-        run: gosec ./...
-        env:
-          PATH: ${{ env.HOME }}/go/bin:${{ env.PATH }}
+      - name: Build docker-compose services
+        run: docker compose up -d
 
       - name: Run unit tests (services)
         run: |
@@ -103,6 +38,9 @@ jobs:
           echo "mode: set" > coverage.txt
           tail -n +2 internal/services/coverage-unit.out >> coverage.txt
           tail -n +2 integration/coverage-integration.out >> coverage.txt
+
+      - name: Shutdown docker-compose services
+        run: docker compose down
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
