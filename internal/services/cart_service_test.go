@@ -3,11 +3,9 @@ package services_test
 import (
 	"errors"
 	"fmt"
-	"testing"
-	"time"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"testing"
 
 	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
 
@@ -50,14 +48,7 @@ func (s *itemServiceStub) DeleteItem(id int) error {
 	return nil
 }
 
-var now = time.Now()
-
 var (
-	sampleItem = &models.Item{
-		ID:    42,
-		Name:  "Test Item",
-		Stock: 5,
-	}
 	sampleCartItem = &models.CartItem{
 		CartID:    1,
 		ItemID:    42,
