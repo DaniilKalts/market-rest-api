@@ -16,7 +16,7 @@ import (
 )
 
 func TestRedisConnection(t *testing.T) {
-	if err := godotenv.Load("../.env"); err != nil {
+	if err := godotenv.Load("../../.env"); err != nil {
 		t.Fatal("failed to load .env file:", err)
 	}
 

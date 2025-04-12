@@ -2,6 +2,7 @@ package services_test
 
 import (
 	"errors"
+	"github.com/DaniilKalts/market-rest-api/internal/mocks"
 	"github.com/stretchr/testify/mock"
 	"testing"
 	"time"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
-	"github.com/DaniilKalts/market-rest-api/mocks"
 )
 
 var now = time.Now()

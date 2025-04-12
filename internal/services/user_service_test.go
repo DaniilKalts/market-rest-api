@@ -2,6 +2,7 @@ package services
 
 import (
 	stdErrors "errors"
+	"github.com/DaniilKalts/market-rest-api/internal/mocks"
 	"testing"
 	"time"
 
@@ -11,7 +12,6 @@ import (
 
 	errs "github.com/DaniilKalts/market-rest-api/internal/errors"
 	"github.com/DaniilKalts/market-rest-api/internal/models"
-	"github.com/DaniilKalts/market-rest-api/mocks"
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 )
 

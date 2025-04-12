@@ -3,6 +3,7 @@ package services_test
 import (
 	"errors"
 	"fmt"
+	"github.com/DaniilKalts/market-rest-api/internal/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
-	"github.com/DaniilKalts/market-rest-api/mocks"
 )
 
 type itemServiceStub struct {

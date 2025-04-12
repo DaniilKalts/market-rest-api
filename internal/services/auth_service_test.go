@@ -1,6 +1,7 @@
 package services_test
 
 import (
+	mocks2 "github.com/DaniilKalts/market-rest-api/internal/mocks"
 	"strconv"
 	"testing"
 	"time"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/DaniilKalts/market-rest-api/internal/models"
 	"github.com/DaniilKalts/market-rest-api/internal/services"
-	"github.com/DaniilKalts/market-rest-api/mocks"
 	"github.com/DaniilKalts/market-rest-api/pkg/jwt"
 )
 
@@ -32,8 +32,8 @@ var (
 )
 
 func TestRegisterUser_UserExists(t *testing.T) {
-	repoMock := new(mocks.UserRepository)
-	tokenStoreMock := new(mocks.TokenStore)
+	repoMock := new(mocks2.UserRepository)
+	tokenStoreMock := new(mocks2.TokenStore)
 	svc := services.NewAuthService(repoMock, tokenStoreMock)
 
 	req := &models.RegisterUser{
@@ -59,8 +59,8 @@ func TestRegisterUser_UserExists(t *testing.T) {
 }
 
 func TestRegisterUser_Success(t *testing.T) {
-	repoMock := new(mocks.UserRepository)
-	tokenStoreMock := new(mocks.TokenStore)
+	repoMock := new(mocks2.UserRepository)
+	tokenStoreMock := new(mocks2.TokenStore)
 	svc := services.NewAuthService(repoMock, tokenStoreMock)
 
 	req := &models.RegisterUser{
@@ -100,8 +100,8 @@ func TestRegisterUser_Success(t *testing.T) {
 }
 
 func TestLoginUser_UserNotFound(t *testing.T) {
-	repoMock := new(mocks.UserRepository)
-	tokenStoreMock := new(mocks.TokenStore)
+	repoMock := new(mocks2.UserRepository)
+	tokenStoreMock := new(mocks2.TokenStore)
 	svc := services.NewAuthService(repoMock, tokenStoreMock)
 
 	repoMock.
@@ -117,8 +117,8 @@ func TestLoginUser_UserNotFound(t *testing.T) {
 }
 
 func TestLoginUser_InvalidCreds(t *testing.T) {
-	repoMock := new(mocks.UserRepository)
-	tokenStoreMock := new(mocks.TokenStore)
+	repoMock := new(mocks2.UserRepository)
+	tokenStoreMock := new(mocks2.TokenStore)
 	svc := services.NewAuthService(repoMock, tokenStoreMock)
 
 	repoMock.
@@ -134,8 +134,8 @@ func TestLoginUser_InvalidCreds(t *testing.T) {
 }
 
 func TestLoginUser_Success(t *testing.T) {
-	repoMock := new(mocks.UserRepository)
-	tokenStoreMock := new(mocks.TokenStore)
+	repoMock := new(mocks2.UserRepository)
+	tokenStoreMock := new(mocks2.TokenStore)
 	svc := services.NewAuthService(repoMock, tokenStoreMock)
 
 	repoMock.
@@ -165,8 +165,8 @@ func generateValidToken(userID int, role string, minutes uint) string {
 }
 
 func TestLogoutUser_ParseError(t *testing.T) {
-	repoMock := new(mocks.UserRepository)
-	tokenStoreMock := new(mocks.TokenStore)
+	repoMock := new(mocks2.UserRepository)
+	tokenStoreMock := new(mocks2.TokenStore)
 	svc := services.NewAuthService(repoMock, tokenStoreMock)
 
 	invalidAccessToken := "invalid.token"
@@ -179,8 +179,8 @@ func TestLogoutUser_ParseError(t *testing.T) {
 }
 
 func TestLogoutUser_DeleteError(t *testing.T) {
-	repoMock := new(mocks.UserRepository)
-	tokenStoreMock := new(mocks.TokenStore)
+	repoMock := new(mocks2.UserRepository)
+	tokenStoreMock := new(mocks2.TokenStore)
 	svc := services.NewAuthService(repoMock, tokenStoreMock)
 
 	userID := 1
@@ -198,8 +198,8 @@ func TestLogoutUser_DeleteError(t *testing.T) {
 }
 
 func TestLogoutUser_Success(t *testing.T) {
-	repoMock := new(mocks.UserRepository)
-	tokenStoreMock := new(mocks.TokenStore)
+	repoMock := new(mocks2.UserRepository)
+	tokenStoreMock := new(mocks2.TokenStore)
 	svc := services.NewAuthService(repoMock, tokenStoreMock)
 
 	userID := 1
@@ -217,8 +217,8 @@ func TestLogoutUser_Success(t *testing.T) {
 }
 
 func TestRefreshTokens_ParseError(t *testing.T) {
-	repoMock := new(mocks.UserRepository)
-	tokenStoreMock := new(mocks.TokenStore)
+	repoMock := new(mocks2.UserRepository)
+	tokenStoreMock := new(mocks2.TokenStore)
 	svc := services.NewAuthService(repoMock, tokenStoreMock)
 
 	invalidRefreshToken := "invalid.token"
@@ -229,8 +229,8 @@ func TestRefreshTokens_ParseError(t *testing.T) {
 }
 
 func TestRefreshTokens_DeleteError(t *testing.T) {
-	repoMock := new(mocks.UserRepository)
-	tokenStoreMock := new(mocks.TokenStore)
+	repoMock := new(mocks2.UserRepository)
+	tokenStoreMock := new(mocks2.TokenStore)
 	svc := services.NewAuthService(repoMock, tokenStoreMock)
 
 	userID := 1
@@ -249,8 +249,8 @@ func TestRefreshTokens_DeleteError(t *testing.T) {
 }
 
 func TestRefreshTokens_SaveError(t *testing.T) {
-	repoMock := new(mocks.UserRepository)
-	tokenStoreMock := new(mocks.TokenStore)
+	repoMock := new(mocks2.UserRepository)
+	tokenStoreMock := new(mocks2.TokenStore)
 	svc := services.NewAuthService(repoMock, tokenStoreMock)
 
 	userID := 1
@@ -273,8 +273,8 @@ func TestRefreshTokens_SaveError(t *testing.T) {
 }
 
 func TestRefreshTokens_Success(t *testing.T) {
-	repoMock := new(mocks.UserRepository)
-	tokenStoreMock := new(mocks.TokenStore)
+	repoMock := new(mocks2.UserRepository)
+	tokenStoreMock := new(mocks2.TokenStore)
 	svc := services.NewAuthService(repoMock, tokenStoreMock)
 
 	userID := 1

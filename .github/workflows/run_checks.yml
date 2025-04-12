@@ -31,7 +31,7 @@ jobs:
           go test -v -coverprofile=coverage-unit.out
 
       - name: Run integration tests
-        run: go test -v -tags=integration ./integration -coverprofile=coverage-integration.out
+        run: go test -v -tags=integration ./internal/integration -coverprofile=coverage-integration.out
 
       - name: Merge coverage
         run: |
