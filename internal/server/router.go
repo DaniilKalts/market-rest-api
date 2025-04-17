@@ -19,12 +19,12 @@ func setupRouter(
 	cartHandler *handlers.CartHandler,
 ) *gin.Engine {
 	router := gin.Default()
-
 	tokenStore := initRedis()
-
 	router.Use(middlewares.LoggerMiddleware())
 
-	itemPublicRoutes := router.Group("/items")
+	api := router.Group("/api")
+
+	itemPublicRoutes := api.Group("/items")
 	{
 		itemPublicRoutes.GET(
 			"/:id",
@@ -36,7 +36,7 @@ func setupRouter(
 		)
 	}
 
-	itemPrivateRoutes := router.Group("/items")
+	itemPrivateRoutes := api.Group("/items")
 	itemPrivateRoutes.Use(
 		middlewares.JWTMiddleware(),
 		middlewares.TokenStoreMiddleware(tokenStore),
@@ -61,7 +61,7 @@ func setupRouter(
 		)
 	}
 
-	userRoutes := router.Group("/users")
+	userRoutes := api.Group("/users")
 	userRoutes.Use(
 		middlewares.JWTMiddleware(),
 		middlewares.TokenStoreMiddleware(tokenStore),
@@ -106,7 +106,7 @@ func setupRouter(
 		}
 	}
 
-	authRoutes := router.Group("/auth")
+	authRoutes := api.Group("/auth")
 	{
 		authRoutes.POST(
 			"/register",
@@ -128,7 +128,7 @@ func setupRouter(
 		)
 	}
 
-	cartRoutes := router.Group("/cart")
+	cartRoutes := api.Group("/cart")
 	cartRoutes.Use(
 		middlewares.JWTMiddleware(),
 	)
@@ -156,12 +156,14 @@ func setupRouter(
 		)
 	}
 
-	router.Static("/docs", "./docs")
+	router.Static("/api/docs", "./docs")
 	router.GET(
-		"/swagger/*any", ginSwagger.CustomWrapHandler(
+		"/api/swagger/*any",
+		ginSwagger.CustomWrapHandler(
 			&ginSwagger.Config{
-				URL: "/docs/openapi.yaml",
-			}, swaggerFiles.Handler,
+				URL: "/api/docs/openapi.yaml",
+			},
+			swaggerFiles.Handler,
 		),
 	)
 

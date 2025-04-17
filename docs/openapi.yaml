@@ -4,7 +4,7 @@ info:
   description: A REST API for managing market items, user accounts, authentication, profiles, and shopping carts.
   version: "1.0.1"
 paths:
-  /items:
+  /api/items:
     get:
       tags:
         - "📦 Items"
@@ -64,7 +64,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /items/{id}:
+  /api/items/{id}:
     parameters:
       - name: id
         in: path
@@ -165,7 +165,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /users:
+  /api/users:
     get:
       tags:
         - "👥 Users"
@@ -194,7 +194,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /users/{id}:
+  /api/users/{id}:
     parameters:
       - name: id
         in: path
@@ -295,7 +295,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /users/me:
+  /api/users/me:
     get:
       tags:
         - "🙋 Profile"
@@ -395,7 +395,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /auth/register:
+  /api/auth/register:
     post:
       tags:
         - "🔒 Authentication"
@@ -433,7 +433,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /auth/login:
+  /api/auth/login:
     post:
       tags:
         - "🔒 Authentication"
@@ -465,7 +465,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /auth/logout:
+  /api/auth/logout:
     post:
       tags:
         - "🔒 Authentication"
@@ -496,7 +496,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /auth/refresh:
+  /api/auth/refresh:
     post:
       tags:
         - "🔒 Authentication"
@@ -523,7 +523,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /cart/items:
+  /api/cart/items:
     get:
       tags:
         - "🛒 Cart"
@@ -594,7 +594,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /cart/items/{id}:
+  /api/cart/items/{id}:
     parameters:
       - name: id
         in: path
