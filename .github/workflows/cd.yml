@@ -24,10 +24,6 @@ jobs:
 
             cd ~/market-rest-api
           
-            git fetch origin main
-            git reset --hard origin/main
-          
-            docker compose down
-            docker compose up -d --build --remove-orphans
-            docker image prune -f
+            docker compose pull
+            docker compose up -d --remove-orphans
           EOF
