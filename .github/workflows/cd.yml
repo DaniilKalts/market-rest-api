@@ -24,6 +24,9 @@ jobs:
 
             cd ~/market-rest-api
           
-            docker compose pull
-            docker compose up -d --remove-orphans
+            git pull origin main
+          
+            export DOCKER_BUILDKIT=0
+
+            docker compose up -d --build --remove-orphans
           EOF
