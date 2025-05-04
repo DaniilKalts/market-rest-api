@@ -20,13 +20,7 @@ jobs:
       - name: Pull & restart on server
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_HOST }} << 'EOF'
-            set -eux
-
             cd ~/market-rest-api
-          
             git pull origin main
-          
-            export DOCKER_BUILDKIT=0
-
             docker compose up -d --build --remove-orphans
           EOF
