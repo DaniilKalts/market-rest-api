@@ -4,6 +4,13 @@ A simple, minimalistic REST API built in **Go** for managing market data. <br />
 The project includes an integrated **Swagger UI** for interactive API documentation. <br />
 Additionally, the project can be run either using **Docker** or directly on your local machine.
 
+### ✨ Features
+- 🔐 **JWT Authentication**
+- 🙋 **Profile Management**
+- 📦 **Item Management (create, update, delete: admin only)**
+- 🛒 **Cart Management**
+- 👥 **User Management (admin only)**
+
 ### 🛠 Tech Stack
 - **Backend:** Go
 - **Database:** Postgres (pgAdmin), Redis
