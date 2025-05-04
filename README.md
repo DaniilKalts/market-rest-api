@@ -142,9 +142,28 @@ cd market-rest-api
 # HTTP PORT
 PORT=8080
 
+# DOMAIN
+DOMAIN=localhost
+
+# REDIS
+# SET @localhost if you wanna run the project locally
+REDIS_DSN="redis://:yourpassword@localhost:6379/0"
+REDIS_PASSWORD=yourpassword
+
 # DATABASE DSN
 # SET host=localhost if you wanna run the project locally
-DATABASE_DSN=host=localhost user=postgres password=yourpassword dbname=market port=5432 sslmode=disable TimeZone=UTC
+POSTGRES_DSN=host=localhost user=postgres password=yourpassword dbname=market 
+port=5432 sslmode=disable TimeZone=UTC
+
+# SECRET
+SECRET=f0a63a95bc42f43c4e21bae68005c09e52414758065e5ab6a1799a269b04a6c773eb80b4c0d6d408f2209a321cfe448ce737f51fe3afd0d13e70b110fff1fcd1a5c3a062154a20d2bb94d309f315b85420ff09f100ca511d391723aab332e5bb71392aacc2e942eba4345f1e8eecdc2b557ea684bff7575f473f410108e8537605736993124d8d5668a32f4e0268886bf49c9fd99c78d68163cc010398ca0d17a86bd1b23a4c3fc0201ebaa81afb8ef7d0f4c5702ebe1ecaba72dc11c044dfaecb1ffdba9db6bdb9f0eaf60a87247305158faecaba7ba46ecdaa56181d645050836aa1a38629ea88623d111aa639f4b7da1718de24fe34f8ccc6e7020e91659d
+
+# ADMIN
+ADMIN_FIRST_NAME=John
+ADMIN_LAST_NAME=Doe
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=admin1234
+ADMIN_PHONE_NUMBER=+70000000000
 ```
 
 3. Install dependencies
@@ -161,20 +180,30 @@ make run
 
 ### API Documentation - Swagger UI
 
-Access the interactive API documentation at:
+Access interactive API documentation at:
 
 ```bash
-http://localhost:8080/swagger/index.html
+http://localhost:8080/api/swagger/index.html
 ```
 
 ![Swagger UI Screenshot](screenshots/swagger-ui.png)
 
-### Database Management - pgAdmin
+### PostgreSQL Management - pgAdmin
 
-Manage the PostgreSQL database using pgAdmin at:
+Manage PostgreSQL database using pgAdmin at:
 
 ```bash
 http://localhost:5050
 ```
 
 ![pgAdmin Overview Screenshot](screenshots/pgAdmin-overview.png)
+
+### Redis Management - Redis Commander
+
+Manage Redis with GUI:
+
+```bash
+http://localhost:8081
+```
+
+![Redis Overview Screenshot](screenshots/redis-commander.png)
