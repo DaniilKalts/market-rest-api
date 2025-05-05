@@ -1,10 +1,7 @@
 services:
   go:
     container_name: market-rest-api
-    build:
-      context: .
-      cache_from:
-        - market-rest-api:latest
+    image: daniilkalts2006/market-rest-api:latest
     ports:
       - "${PORT:-8080}:8080"
     env_file:
