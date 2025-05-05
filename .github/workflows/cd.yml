@@ -9,9 +9,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
       - name: Start ssh-agent and add key
         uses: webfactory/ssh-agent@v0.5.4
         with:
@@ -24,11 +21,9 @@ jobs:
             -o ServerAliveInterval=60 \
             root@${{ secrets.SERVER_HOST }} << 'EOF'
             set -eux
-          
-            cd ~/market-rest-api
-          
-            git fetch origin main
-            git reset --hard origin/main
-          
-            docker-compose up -d --build --remove-orphans
+              docker pull ${{ secrets.DOCKERHUB_USERNAME }}/market-rest-api:latest
+  
+              cd ~/market-rest-api
+  
+              docker-compose up -d
           EOF
